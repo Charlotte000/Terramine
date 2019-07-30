@@ -37,6 +37,20 @@ if __name__ == 'classes.Sheep':
             if abs(self.rect.x - game.hero.x) < SIZE[0] * 5:
                 self.Visible = False
 
+                # Стрижка
+                if self.grow_time0 == Sheep.grow_time - 1:
+                    game.pickup.extend(PickUp(self.rect.centerx - randint(-10, 10), self.rect.centery, 'wool')
+                                       for _ in range(1, randint(2, 4)))
+                if self.grow_time0 < Sheep.grow_time:
+                    self.grow_time0 -= 1
+                if self.grow_time0 <= 0:
+                    self.grow_time0 = Sheep.grow_time
+
+                if self.grow_time0 != Sheep.grow_time:
+                    self.image = self.textures[1]
+                else:
+                    self.image = self.textures[0]
+
                 pos = game.camera.get_pos(self.rect.x, self.rect.y)
 
                 if (pos[0] in range(-self.rect.width, SIZE[0])) and (pos[1] in range(-self.rect.height, SIZE[1])):
@@ -93,20 +107,6 @@ if __name__ == 'classes.Sheep':
                         self.active_cooldown += 1
                     if self.active_cooldown >= Sheep.active_cooldown:
                         self.active_cooldown = 0
-
-                    # Стрижка
-                    if self.grow_time0 == Sheep.grow_time - 1:
-                        game.pickup.extend(PickUp(self.rect.centerx - randint(-10, 10), self.rect.centery, 'wool')
-                                           for _ in range(1, randint(2, 4)))
-                    if self.grow_time0 < Sheep.grow_time:
-                        self.grow_time0 -= 1
-                    if self.grow_time0 <= 0:
-                        self.grow_time0 = Sheep.grow_time
-
-                    if self.grow_time0 != Sheep.grow_time:
-                        self.image = self.textures[1]
-                    else:
-                        self.image = self.textures[0]
 
                     self.draw(game, pos)
 
