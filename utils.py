@@ -11,7 +11,7 @@ if __name__ == 'utils':
     from classes.Sheep import Sheep
     from classes.Bird import Bird
 
-    from settings import F_SIZE, tree1, tree2, tree3
+    from settings import F_SIZE, trees
 
 
     def angle_calc(x1, y1, x2, y2):
@@ -282,13 +282,12 @@ if __name__ == 'utils':
                 block.append(Block(b.rect.x, b.rect.y, 'diamond_ore', wall='stone_wall'))
 
             # Добавление деревьев
-            for x in [randrange(25, F_SIZE[0] - 25, 25) for _ in range(randint(20, 100))]:
+            for x in [randrange(25, F_SIZE[0] - 25, 25) for _ in range(randint(50, 100))]:
                 progress += 1
                 y = min([n.rect.y for n in [i for i in block if i.rect.x == x]])
                 for n in block:
                     if n.rect.x == x and n.rect.y == y and (n.name == 'grass' or n.name == 'dirt'):
-                        for unit in choice([tree1(x, y - 25), tree2(x, y - 25),
-                                            tree3(x, y - 25)]):
+                        for unit in choice(trees)(x, y - 25):
                             block.append(Block(unit[0], unit[1], unit[2], collision=False, explored=True))
                         break
 

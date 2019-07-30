@@ -3,18 +3,20 @@ F_SIZE = [10500, 1500]
 
 DEBUG = True
 
-tree1 = lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'],
-                      [x - 25, y - 50, 'leaves'], [x + 25, y - 50, 'leaves'], [x - 25, y - 75, 'leaves'],
-                      [x + 25, y - 75, 'leaves'], [x, y - 100, 'leaves']]
-tree2 = lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'], [x, y - 100, 'log'],
-                      [x - 25, y - 50, 'leaves'], [x + 25, y - 50, 'leaves'], [x - 25, y - 75, 'leaves'],
-                      [x + 25, y - 75, 'leaves'], [x, y - 125, 'leaves'], [x - 25, y - 100, 'leaves'],
-                      [x + 25, y - 100, 'leaves'], [x - 25, y - 125, 'leaves'], [x + 25, y - 125, 'leaves'],
-                      [x, y - 150, 'leaves'], [x - 50, y - 50, 'leaves'], [x + 50, y - 50, 'leaves'],
-                      [x - 50, y - 75, 'leaves'], [x + 50, y - 75, 'leaves']]
-tree3 = lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'], [x, y - 100, 'log'],
-                      [x, y - 125, 'log'], [x - 25, y - 100, 'leaves'], [x + 25, y - 100, 'leaves'],
-                      [x - 25, y - 125, 'leaves'], [x + 25, y - 125, 'leaves'], [x, y - 150, 'leaves']]
+trees = [
+    lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'],
+                  [x - 25, y - 50, 'leaves'], [x + 25, y - 50, 'leaves'], [x - 25, y - 75, 'leaves'],
+                  [x + 25, y - 75, 'leaves'], [x, y - 100, 'leaves']],
+    lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'], [x, y - 100, 'log'],
+                  [x - 25, y - 50, 'leaves'], [x + 25, y - 50, 'leaves'], [x - 25, y - 75, 'leaves'],
+                  [x + 25, y - 75, 'leaves'], [x, y - 125, 'leaves'], [x - 25, y - 100, 'leaves'],
+                  [x + 25, y - 100, 'leaves'], [x - 25, y - 125, 'leaves'], [x + 25, y - 125, 'leaves'],
+                  [x, y - 150, 'leaves'], [x - 50, y - 50, 'leaves'], [x + 50, y - 50, 'leaves'],
+                  [x - 50, y - 75, 'leaves'], [x + 50, y - 75, 'leaves']],
+    lambda x, y: [[x, y, 'log'], [x, y - 25, 'log'], [x, y - 50, 'log'], [x, y - 75, 'log'], [x, y - 100, 'log'],
+                  [x, y - 125, 'log'], [x - 25, y - 100, 'leaves'], [x + 25, y - 100, 'leaves'],
+                  [x - 25, y - 125, 'leaves'], [x + 25, y - 125, 'leaves'], [x, y - 150, 'leaves']]
+]
 
 
 # --------item--------------------price1--------------price2------

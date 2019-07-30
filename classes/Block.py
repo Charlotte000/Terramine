@@ -4,7 +4,7 @@ if __name__ == 'classes.Block':
     from classes.Wall import Wall
 
     from data.textures.loader import links, b_wheat
-    from settings import SIZE, tree1, tree2, tree3
+    from settings import SIZE, trees
 
     from random import randint, choice
     import pygame
@@ -155,8 +155,7 @@ if __name__ == 'classes.Block':
             if self.name == 'sapling':
                 self.cooldown -= 1
                 if self.cooldown <= 0:
-                    tree = choice([tree1(self.rect.x, self.rect.y), tree2(self.rect.x, self.rect.y),
-                                  tree3(self.rect.x, self.rect.y)])
+                    tree = choice(trees)(self.rect.x, self.rect.y)
     
                     for q in game.block:
                         if q.Visible and (q != self):
