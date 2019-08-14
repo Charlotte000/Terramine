@@ -104,7 +104,7 @@ if __name__ == 'classes.Block':
                 self.hp = 2
                 self.Collision = False
                 if cooldown is None:
-                    self.cooldown = randint(1000, 4000)
+                    self.cooldown = randint(9000, 18000)
                 self.possible_pos = [[x - 25, y], [x - 25, y - 25], [x - 25, y + 25], [x + 25, y], [x + 25, y + 25],
                                      [x + 25, y - 25]]
             elif name == 'wool':

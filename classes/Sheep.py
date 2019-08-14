@@ -1,7 +1,9 @@
 if __name__ == 'classes.Sheep':
+    from classes.PickUp import PickUp
 
     from settings import SIZE
-    from classes.PickUp import PickUp
+
+    from math import sqrt
 
     from random import choice, randint
     import pygame
@@ -65,7 +67,7 @@ if __name__ == 'classes.Sheep':
                                 self.direction = -1
                             elif self.rect.x < game.hero.x - 25:
                                 self.direction = 1
-                        elif 1 == randint(1, 100):
+                        elif 1 == randint(1, 50):
                             self.direction = randint(-1, 1)
                         if self.to_jump:
                             self.dy -= Sheep.jump
@@ -94,13 +96,23 @@ if __name__ == 'classes.Sheep':
 
                     # Перемещение
                     self.rect.y += self.dy
-                    self.collision(0, self.dy, game.block, game.animals)
+                    self.collision(0, self.dy, game.block)
                     self.rect.x += self.dx
-                    self.collision(self.dx, 0, game.block, game.animals)
+                    self.collision(self.dx, 0, game.block)
 
                     # Кормление
                     if self.active < Sheep.active_time:
                         self.active += 1
+
+                        for an in game.animals['sheep']:
+                            if self != an and an.active < Sheep.active_time:
+                                if sqrt(pow(self.rect.x - an.rect.x, 2) + pow(self.rect.y - an.rect.y, 2)) <= 50:
+                                    self.active = an.active = Sheep.active_time
+                                    self.active_cooldown = an.active_cooldown = 1
+                                    game.animals['sheep'].append(Sheep(self.rect.x + 10, self.rect.y))
+                                    game.animals['sheep'][-1].active_cooldown = 1
+                                    break
+
                         if self.active >= Sheep.active_time:
                             self.active_cooldown += 1
                     if 0 < self.active_cooldown < Sheep.active_cooldown:
@@ -116,9 +128,8 @@ if __name__ == 'classes.Sheep':
             else:
                 game.screen.blit(pygame.transform.flip(self.image, True, False), pos)
 
-        def collision(self, dx, dy, block, animals):
-            collide_objects = [n for n in block if n.Visible and (n.Collision or n.name == 'fence')] + \
-                              [an for an in animals['sheep'] if an != self]
+        def collision(self, dx, dy, block):
+            collide_objects = [n for n in block if n.Visible and (n.Collision or n.name == 'fence')]
 
             for n in pygame.Rect.collidelistall(self.rect, collide_objects):
                 if dx:

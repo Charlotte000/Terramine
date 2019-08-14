@@ -4,6 +4,8 @@ if __name__ == 'classes.Pig':
 
     from settings import SIZE
 
+    from math import sqrt
+
     from classes.PickUp import PickUp
 
     class Pig:
@@ -46,7 +48,7 @@ if __name__ == 'classes.Pig':
                                 self.direction = -1
                             elif self.rect.x < game.hero.x - 25:
                                 self.direction = 1
-                        elif 1 == randint(1, 100):
+                        elif 1 == randint(1, 50):
                             self.direction = randint(-1, 1)
                         if self.to_jump:
                             self.dy -= Pig.jump
@@ -72,13 +74,23 @@ if __name__ == 'classes.Pig':
 
                     # Перемещение
                     self.rect.y += self.dy
-                    self.collision(0, self.dy, game.block, game.animals)
+                    self.collision(0, self.dy, game.block)
                     self.rect.x += self.dx
-                    self.collision(self.dx, 0, game.block, game.animals)
+                    self.collision(self.dx, 0, game.block)
 
                     # Кормление
                     if self.active < Pig.active_time:
                         self.active += 1
+
+                        for an in game.animals['pig']:
+                            if self != an and an.active < Pig.active_time:
+                                if sqrt(pow(self.rect.x - an.rect.x, 2) + pow(self.rect.y - an.rect.y, 2)) <= 50:
+                                    self.active = an.active = Pig.active_time
+                                    self.active_cooldown = an.active_cooldown = 1
+                                    game.animals['pig'].append(Pig(self.rect.x + 10, self.rect.y))
+                                    game.animals['pig'][-1].active_cooldown = 1
+                                    break
+
                         if self.active >= Pig.active_time:
                             self.active_cooldown += 1
                     if 0 < self.active_cooldown < Pig.active_cooldown:
@@ -94,9 +106,8 @@ if __name__ == 'classes.Pig':
             else:
                 game.screen.blit(pygame.transform.flip(self.image, True, False), pos)
 
-        def collision(self, dx, dy, block, animals):
-            collide_objects = [n for n in block if n.Visible and (n.Collision or n.name == 'fence')] + \
-                              [an for an in animals['pig'] if an != self]
+        def collision(self, dx, dy, block):
+            collide_objects = [n for n in block if n.Visible and (n.Collision or n.name == 'fence')]
 
             for n in pygame.Rect.collidelistall(self.rect, collide_objects):
                 if dx:

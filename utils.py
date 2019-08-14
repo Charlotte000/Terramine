@@ -1,5 +1,5 @@
 if __name__ == 'utils':
-    from math import degrees, atan
+    from math import degrees, atan, sqrt
     from json import dump, loads
     from random import randint, choice, randrange, choices
     import pygame
