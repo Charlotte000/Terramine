@@ -1,5 +1,5 @@
 if __name__ == 'classes.Player':
-    from settings import SIZE, F_SIZE, furnace_list, axe_damage, pickaxe_damage, shovel_damage
+    from settings import F_SIZE, axe_damage, pickaxe_damage, shovel_damage
 
     from classes.Block import Block
     from classes.Wall import Wall
@@ -411,15 +411,13 @@ if __name__ == 'classes.Player':
                         go = False
                         self.hunger += 4
 
-                    if (_name[-3:] == 'axe') or (_name[-7:] == 'pickaxe') or (_name[-6:] == 'shovel') or \
-                            (_name[-5:] == 'sword') or (_name[-6:] == 'hammer') or (_name == 'grown_wheat') or \
-                            (_name[-8:] == 'porkchop') or (_name == 'arrow') or (_name == 'bow') or (
-                            _name[-4:] == 'fowl') or \
-                            (_name[-5:] == 'ingot') or (_name == 'diamond') or (_name == 'iron_helmet') or \
-                            (_name == 'iron_chestplate') or (_name == 'iron_leggings') or (_name == 'iron_boots') or \
-                            (_name == 'eye_call') or (_name[-6:] == 'mutton') or (_name == 'thread') or (
-                            _name == 'stick') or \
-                            (_name == 'scissors'):
+                    if _name[-3:] == 'axe' or _name[-7:] == 'pickaxe' or _name[-6:] == 'shovel' or \
+                            _name[-5:] == 'sword' or _name[-6:] == 'hammer' or _name == 'grown_wheat' or \
+                            _name[-8:] == 'porkchop' or _name == 'arrow' or _name == 'bow' or  _name[-4:] == 'fowl' or \
+                            _name[-5:] == 'ingot' or _name == 'diamond' or _name == 'iron_helmet' or \
+                            _name == 'iron_chestplate' or _name == 'iron_leggings' or _name == 'iron_boots' or \
+                            _name == 'eye_call' or _name[-6:] == 'mutton' or _name == 'thread' or _name == 'stick' or \
+                            _name == 'scissors' or _name == 'coal':
                         go = False
 
                     for n in game.block:

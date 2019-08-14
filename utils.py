@@ -271,6 +271,10 @@ if __name__ == 'utils':
                 dead_block.append(b)
                 block.append(Block(b.rect.x, b.rect.y, 'iron_ore', wall='stone_wall'))
 
+            for b in choices([i for i in block if i.name == 'stone'], k=randint(150, 250)):
+                dead_block.append(b)
+                block.append(Block(b.rect.x, b.rect.y, 'coal_ore', wall='stone_wall'))
+
             for b in choices([i for i in block if i.name == 'stone' and i.rect.y > 1100], k=randint(50, 100)):
                 progress += 1
                 dead_block.append(b)

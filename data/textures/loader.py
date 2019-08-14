@@ -44,6 +44,7 @@ if __name__ == 'data.textures.loader':
     b_mushroom = block.subsurface(275, 50, 25, 25).convert_alpha()
     b_wool = block.subsurface(325, 25, 25, 25).convert_alpha()
     b_fence = [block.subsurface(325, 50, 25, 25).convert_alpha(), block.subsurface(300, 50, 25, 25).convert_alpha()]
+    b_coal_ore = block.subsurface(0, 50, 25, 25).convert_alpha()
 
     i_gold_ingot = items.subsurface(0, 0, 20, 20).convert_alpha()
     i_iron_ingot = items.subsurface(20, 0, 20, 20).convert_alpha()
@@ -67,6 +68,7 @@ if __name__ == 'data.textures.loader':
     i_thread = items.subsurface(180, 20, 20, 20).convert_alpha()
     i_stick = items.subsurface(0, 40, 20, 20).convert_alpha()
     i_scissors = items.subsurface(20, 40, 20, 20).convert_alpha()
+    i_coal = items.subsurface(40, 40, 20, 20).convert_alpha()
 
     t_wooden_axe = tools.subsurface(0, 0, 20, 20).convert_alpha()
     t_wooden_pickaxe = tools.subsurface(0, 20, 20, 20).convert_alpha()
@@ -196,5 +198,7 @@ if __name__ == 'data.textures.loader':
         'stick': i_stick,
         'scissors': i_scissors,
         'fence': b_fence,
-        'destroy': destroy
+        'destroy': destroy,
+        'coal_ore': b_coal_ore,
+        'coal': i_coal
         }

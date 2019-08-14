@@ -44,6 +44,8 @@ if __name__ == 'classes.Block':
                 self.hp = 19
             elif name == 'iron_ore':
                 self.hp = 18
+            elif name == 'coal_ore':
+                self.hp = 15
             elif name == 'diamond_ore':
                 self.hp = 23
             elif name == 'grass':
@@ -232,6 +234,9 @@ if __name__ == 'classes.Block':
                     game.pickup.append(PickUp(self.rect.centerx, self.rect.centery, 'sapling'))
             elif self.name == 'diamond_ore':
                 game.pickup.append(PickUp(self.rect.centerx, self.rect.centery, 'diamond'))
+            elif self.name == 'coal_ore':
+                for _ in range(randint(1, 5)):
+                    game.pickup.append(PickUp(self.rect.centerx, self.rect.centery, 'coal'))
             elif self.name == 'door':
                 game.pickup.append(PickUp(self.rect.centerx, self.rect.centery, 'door'))
             elif self.name == 'trapdoor':

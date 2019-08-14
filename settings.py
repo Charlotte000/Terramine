@@ -23,8 +23,8 @@ trees = [
 craft_list = [
     [['wood_planks',      4], [['log',              1]]],
     [['crafting_table',   1], [['wood_planks',      4]]],
-    [['torch',            4], [['stick',            2]]],
-    [['stick',            4], [['wood_planks',      2]]]
+    [['stick',            4], [['wood_planks',      2]]],
+    [['torch',            4], [['stick',            1], ['coal',   1]]]
 ]
 crafting_table_list = [
     [['wooden_pickaxe',   1], [['wood_planks',      3], ['stick',  2]]],
@@ -66,6 +66,7 @@ crafting_table_list = [
     [['cobblestone_wall', 4], [['cobblestone',      4]]],
     [['log_wall',         4], [['log',              4]]],
     [['stone_wall',       4], [['stone',            4]]],
+
     [['furnace',          1], [['cobblestone',      8]]],
     [['ladder',           3], [['stick',            7]]],
     [['door',             1], [['wood_planks',      6]]],
@@ -81,14 +82,15 @@ crafting_table_list = [
 ]
 
 furnace_list = [
-    [['gold_ingot',       1], [['gold_ore',         1]]],
-    [['iron_ingot',       1], [['iron_ore',         1]]],
-    [['stone',            1], [['cobblestone',      1]]],
-    [['glass',            1], [['sand',             1]]],
-    [['mushroom_stew',    1], [['mushroom',         1]]],
-    [['cooked_porkchop',  1], [['porkchop',         1]]],
-    [['cooked_fowl',      1], [['fowl',             1]]],
-    [['cooked_mutton',    1], [['mutton',           1]]]
+    [['gold_ingot',       1], [['gold_ore',         1], ['coal',   1]]],
+    [['iron_ingot',       1], [['iron_ore',         1], ['coal',   1]]],
+    [['stone',            1], [['cobblestone',      1], ['coal',   1]]],
+    [['glass',            1], [['sand',             1], ['coal',   1]]],
+    [['mushroom_stew',    1], [['mushroom',         1], ['coal',   1]]],
+    [['cooked_porkchop',  1], [['porkchop',         1], ['coal',   1]]],
+    [['cooked_fowl',      1], [['fowl',             1], ['coal',   1]]],
+    [['cooked_mutton',    1], [['mutton',           1], ['coal',   1]]],
+    [['coal',             1], [['log',              2]]]
 ]
 
 description = {
@@ -128,6 +130,7 @@ description = {
     'stick': 'Sticks are used in crafting',
     'scissors': 'Is used for sheep shearing',
     'fence': 'Encloses animals',
+    'coal': 'Coal is using in ore smelting in the furnace',
 
     'wall': 'Wall is a decor',
     'armor': 'Armor that will add the amount of health',
@@ -146,6 +149,7 @@ minimap = [
     [(255, 255, 0), 'gold_ore'],
     [(192, 158, 133), 'iron_ore'],
     [(0, 182, 255), 'diamond_ore'],
+    [(68, 68, 68), 'coal_ore'],
     [(0, 174, 0), 'grass'],
     [(66, 255, 0), 'leaves'],
     [(153, 81, 9), 'log'],
@@ -172,5 +176,5 @@ minimap = [
 
 
 axe_damage = ['log', 'wood_planks', 'crafting_table', 'door', 'trapdoor', 'ladder', 'leaves', 'fence']
-pickaxe_damage = ['stone', 'cobblestone', 'iron_ore', 'gold_ore', 'diamond_ore', 'furnace']
+pickaxe_damage = ['stone', 'cobblestone', 'iron_ore', 'gold_ore', 'diamond_ore', 'furnace', 'coal_ore']
 shovel_damage = ['dirt', 'grass', 'sand']
