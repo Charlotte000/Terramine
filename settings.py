@@ -19,65 +19,76 @@ trees = [
 ]
 
 
-# --------item--------------------price1--------------price2------
+# ----item----------------------price1-------------------price2------
 craft_list = [
-    [['wood_planks',      4], [['log',         1]]],
-    [['crafting_table',   1], [['wood_planks', 4]]],
-    [['torch',            4], [['stick',       2]]],
-    [['stick',            4], [['wood_planks', 2]]]
+    [['wood_planks',      4], [['log',              1]]],
+    [['crafting_table',   1], [['wood_planks',      4]]],
+    [['torch',            4], [['stick',            2]]],
+    [['stick',            4], [['wood_planks',      2]]]
 ]
 crafting_table_list = [
-    [['wooden_pickaxe',   1], [['wood_planks', 3], ['stick',  2]]],
-    [['stone_pickaxe',    1], [['cobblestone', 3], ['stick',  2]]],
-    [['iron_pickaxe',     1], [['iron_ingot',  3], ['stick',  2]]],
-    [['golden_pickaxe',   1], [['gold_ingot',  3], ['stick',  2]]],
-    [['diamond_pickaxe',  1], [['diamond',     3], ['stick',  2]]],
+    [['wooden_pickaxe',   1], [['wood_planks',      3], ['stick',  2]]],
+    [['stone_pickaxe',    1], [['cobblestone',      3], ['stick',  2]]],
+    [['iron_pickaxe',     1], [['iron_ingot',       3], ['stick',  2]]],
+    [['golden_pickaxe',   1], [['gold_ingot',       3], ['stick',  2]]],
+    [['diamond_pickaxe',  1], [['diamond',          3], ['stick',  2]]],
 
-    [['wooden_axe',       1], [['wood_planks', 3], ['stick',  2]]],
-    [['stone_axe',        1], [['cobblestone', 3], ['stick',  2]]],
-    [['iron_axe',         1], [['iron_ingot',  3], ['stick',  2]]],
-    [['golden_axe',       1], [['gold_ingot',  3], ['stick',  2]]],
-    [['diamond_axe',      1], [['diamond',     3], ['stick',  2]]],
+    [['wooden_axe',       1], [['wood_planks',      3], ['stick',  2]]],
+    [['stone_axe',        1], [['cobblestone',      3], ['stick',  2]]],
+    [['iron_axe',         1], [['iron_ingot',       3], ['stick',  2]]],
+    [['golden_axe',       1], [['gold_ingot',       3], ['stick',  2]]],
+    [['diamond_axe',      1], [['diamond',          3], ['stick',  2]]],
 
-    [['wooden_shovel',    1], [['wood_planks', 1], ['stick',  2]]],
-    [['stone_shovel',     1], [['cobblestone', 1], ['stick',  2]]],
-    [['iron_shovel',      1], [['iron_ingot',  1], ['stick',  2]]],
-    [['golden_shovel',    1], [['gold_ingot',  1], ['stick',  2]]],
-    [['diamond_shovel',   1], [['diamond',     1], ['stick',  2]]],
+    [['wooden_shovel',    1], [['wood_planks',      1], ['stick',  2]]],
+    [['stone_shovel',     1], [['cobblestone',      1], ['stick',  2]]],
+    [['iron_shovel',      1], [['iron_ingot',       1], ['stick',  2]]],
+    [['golden_shovel',    1], [['gold_ingot',       1], ['stick',  2]]],
+    [['diamond_shovel',   1], [['diamond',          1], ['stick',  2]]],
 
-    [['wooden_sword',     1], [['wood_planks', 2], ['stick',  1]]],
-    [['stone_sword',      1], [['cobblestone', 2], ['stick',  1]]],
-    [['iron_sword',       1], [['iron_ingot',  2], ['stick',  1]]],
-    [['golden_sword',     1], [['gold_ingot',  2], ['stick',  1]]],
-    [['diamond_sword',    1], [['diamond',     2], ['stick',  1]]],
+    [['wooden_sword',     1], [['wood_planks',      2], ['stick',  1]]],
+    [['stone_sword',      1], [['cobblestone',      2], ['stick',  1]]],
+    [['iron_sword',       1], [['iron_ingot',       2], ['stick',  1]]],
+    [['golden_sword',     1], [['gold_ingot',       2], ['stick',  1]]],
+    [['diamond_sword',    1], [['diamond',          2], ['stick',  1]]],
 
-    [['wooden_hammer',    1], [['wood_planks', 3], ['stick',  2]]],
-    [['stone_hammer',     1], [['cobblestone', 3], ['stick',  2]]],
-    [['iron_hammer',      1], [['iron_ingot',  3], ['stick',  2]]],
-    [['golden_hammer',    1], [['gold_ingot',  3], ['stick',  2]]],
-    [['diamond_hammer',   1], [['diamond',     3], ['stick',  2]]],
+    [['wooden_hammer',    1], [['wood_planks',      3], ['stick',  2]]],
+    [['stone_hammer',     1], [['cobblestone',      3], ['stick',  2]]],
+    [['iron_hammer',      1], [['iron_ingot',       3], ['stick',  2]]],
+    [['golden_hammer',    1], [['gold_ingot',       3], ['stick',  2]]],
+    [['diamond_hammer',   1], [['diamond',          3], ['stick',  2]]],
 
-    [['iron_helmet',      1], [['iron_ingot',  5]]],
-    [['iron_chestplate',  1], [['iron_ingot',  8]]],
-    [['iron_leggings',    1], [['iron_ingot',  7]]],
-    [['iron_boots',       1], [['iron_ingot',  4]]],
+    [['iron_helmet',      1], [['iron_ingot',       5]]],
+    [['iron_chestplate',  1], [['iron_ingot',       8]]],
+    [['iron_leggings',    1], [['iron_ingot',       7]]],
+    [['iron_boots',       1], [['iron_ingot',       4]]],
 
-    [['wooden_wall',      4], [['wood_planks', 4]]],
-    [['cobblestone_wall', 4], [['cobblestone', 4]]],
-    [['log_wall',         4], [['log',         4]]],
-    [['stone_wall',       4], [['stone',       4]]],
-    [['furnace',          1], [['cobblestone', 8]]],
-    [['ladder',           3], [['stick',       7]]],
-    [['door',             1], [['wood_planks', 6]]],
-    [['trapdoor',         2], [['wood_planks', 6]]],
-    [['chest',            1], [['wood_planks', 8]]],
-    [['bread',            1], [['grown_wheat', 3]]],
-    [['bed',              1], [['wood_planks', 4], ['wool',   2]]],
-    [['arrow',            4], [['stick',       2], ['thread', 1]]],
-    [['bow',              1], [['stick',       4], ['thread', 3]]],
-    [['thread',           4], [['wool',        1]]],
-    [['scissors',         1], [['iron_ingot',  3]]],
-    [['fence',            1], [['stick',       4]]]
+    [['wooden_wall',      4], [['wood_planks',      4]]],
+    [['cobblestone_wall', 4], [['cobblestone',      4]]],
+    [['log_wall',         4], [['log',              4]]],
+    [['stone_wall',       4], [['stone',            4]]],
+    [['furnace',          1], [['cobblestone',      8]]],
+    [['ladder',           3], [['stick',            7]]],
+    [['door',             1], [['wood_planks',      6]]],
+    [['trapdoor',         2], [['wood_planks',      6]]],
+    [['chest',            1], [['wood_planks',      8]]],
+    [['bread',            1], [['grown_wheat',      3]]],
+    [['bed',              1], [['wood_planks',      4], ['wool',   2]]],
+    [['arrow',            4], [['stick',            2], ['thread', 1]]],
+    [['bow',              1], [['stick',            4], ['thread', 3]]],
+    [['thread',           4], [['wool',             1]]],
+    [['scissors',         1], [['iron_ingot',       3]]],
+    [['fence',            1], [['stick',            4]]]
+]
+
+furnace_list = [
+    [['gold_ingot',       1], [['gold_ore',         1]]],
+    [['iron_ingot',       1], [['iron_ore',         1]]],
+    [['stone',            1], [['cobblestone',      1]]],
+    [['glass',            1], [['sand',             1]]],
+    [['mushroom_stew',    1], [['mushroom',         1]]],
+    [['cooked_porkchop',  1], [['porkchop',         1]]],
+    [['cooked_fowl',      1], [['fowl',             1]]],
+    [['cooked_mutton',    1], [['mutton',           1]]]
 ]
 
 description = {
@@ -127,17 +138,6 @@ description = {
     'hammer': 'Hammer will destroy the wall',
     'ore': 'The ore can be melted in the furnace and used in crafting',
     'ingot': 'Ingot is used in crafting'
-}
-
-furnace_dict = {
-    'gold_ore': 'gold_ingot',
-    'iron_ore': 'iron_ingot',
-    'cobblestone': 'stone',
-    'sand': 'glass',
-    'mushroom': 'mushroom_stew',
-    'porkchop': 'cooked_porkchop',
-    'fowl': 'cooked_fowl',
-    'mutton': 'cooked_mutton'
 }
 
 minimap = [

@@ -1,5 +1,5 @@
 if __name__ == 'classes.Player':
-    from settings import SIZE, F_SIZE, furnace_dict, axe_damage, pickaxe_damage, shovel_damage
+    from settings import SIZE, F_SIZE, furnace_list, axe_damage, pickaxe_damage, shovel_damage
 
     from classes.Block import Block
     from classes.Wall import Wall
@@ -45,10 +45,11 @@ if __name__ == 'classes.Player':
             self.armor_img = pygame.image.load(r'data\textures\icons.png').convert_alpha().subsurface(0, 0, 9, 9)
 
             self.craft_available = []
+            self.furnace_available = []
 
             self.inventory_menu_pos = 1
-            self.craft_menu_pos = 1
-            self.chest_menu_pos = 1
+            self.menu_pos = 1
+
             self.chest_block = None
 
             resource = pygame.image.load(r'data\textures\player.png').convert_alpha()
@@ -443,12 +444,6 @@ if __name__ == 'classes.Player':
 
                             if (n.rect.x == _x) and (n.rect.y == _y):
                                 go = False
-                                if n.name == 'furnace':
-                                    for f in furnace_dict:
-                                        if f == _name:
-                                            if self.add_item(self.inventory, [furnace_dict[f], 1]):
-                                                self.remove_item(self.inventory, [f, 1])
-                                            break
 
                                 if (n.name == 'altar') and (_name == 'eye_call'):
                                     for qwe in self.inventory:
@@ -523,18 +518,22 @@ if __name__ == 'classes.Player':
                     del _x, _y, _name, go
 
             if self.k_up:
-                if not self.chest_block:
-                    if 1 <= self.craft_menu_pos <= len(self.craft_available):
-                        if self.add_item(self.inventory, self.craft_available[self.craft_menu_pos - 1][0]):
-                            for rem_item in self.craft_available[self.craft_menu_pos - 1][1]:
+                if self.chest_block:
+                    if self.menu_pos <= len(self.chest_block.content):
+                        if self.add_item(self.inventory, [self.chest_block.content[self.menu_pos - 1][0], 1]):
+                            self.chest_block.content[self.menu_pos - 1][1] -= 1
+                            if self.chest_block.content[self.menu_pos - 1][1] <= 0:
+                                self.chest_block.content.remove(self.chest_block.content[self.menu_pos - 1])
+                elif self.furnace_available:
+                    if 1 <= self.menu_pos <= len(self.furnace_available):
+                        if self.add_item(self.inventory, self.furnace_available[self.menu_pos - 1][0]):
+                            for rem_item in self.furnace_available[self.menu_pos - 1][1]:
                                 self.remove_item(self.inventory, rem_item)
-
-                elif self.chest_block:
-                    if self.chest_menu_pos <= len(self.chest_block.content):
-                        if self.add_item(self.inventory, [self.chest_block.content[self.chest_menu_pos - 1][0], 1]):
-                            self.chest_block.content[self.chest_menu_pos - 1][1] -= 1
-                            if self.chest_block.content[self.chest_menu_pos - 1][1] <= 0:
-                                self.chest_block.content.remove(self.chest_block.content[self.chest_menu_pos - 1])
+                else:
+                    if 1 <= self.menu_pos <= len(self.craft_available):
+                        if self.add_item(self.inventory, self.craft_available[self.menu_pos - 1][0]):
+                            for rem_item in self.craft_available[self.menu_pos - 1][1]:
+                                self.remove_item(self.inventory, rem_item)
 
                 self.k_up = False
 
@@ -548,24 +547,24 @@ if __name__ == 'classes.Player':
 
             if self.k_left:
                 if self.chest_block is None:
-                    self.craft_menu_pos -= 1
-                    if self.craft_menu_pos <= 0:
-                        self.craft_menu_pos = len(self.craft_available)
+                    self.menu_pos -= 1
+                    if self.menu_pos <= 0:
+                        self.menu_pos = len(self.craft_available)
                 else:
-                    self.chest_menu_pos -= 1
-                    if self.chest_menu_pos < 1:
-                        self.chest_menu_pos = 19
+                    self.menu_pos -= 1
+                    if self.menu_pos < 1:
+                        self.menu_pos = 19
                 self.k_left = False
 
             if self.k_right:
                 if self.chest_block is None:
-                    self.craft_menu_pos += 1
-                    if self.craft_menu_pos > len(self.craft_available):
-                        self.craft_menu_pos = 1
+                    self.menu_pos += 1
+                    if self.menu_pos > len(self.craft_available):
+                        self.menu_pos = 1
                 else:
-                    self.chest_menu_pos += 1
-                    if self.chest_menu_pos > 19:
-                        self.chest_menu_pos = 1
+                    self.menu_pos += 1
+                    if self.menu_pos > 19:
+                        self.menu_pos = 1
                 self.k_right = False
 
             if self.q:

@@ -20,7 +20,7 @@ from classes.Worm import Worm
 from classes.Zombie import Zombie
 
 from data.textures.loader import t_iron_pickaxe, links
-from settings import SIZE, F_SIZE, DEBUG, description, craft_list, crafting_table_list, minimap
+from settings import SIZE, F_SIZE, DEBUG, description, craft_list, crafting_table_list, minimap, furnace_list
 from utils import read_save, write_save, create_map
 
 
@@ -142,7 +142,7 @@ class Game:
                 if n[1] <= 0:
                     self.hero.inventory.remove(n)
 
-            if self.hero.chest_block is not None:
+            if self.hero.chest_block:
                 # Меню сундука
                 if sqrt(pow(self.hero.rect.centerx - self.hero.chest_block.rect.centerx - 1, 2) +
                         pow(self.hero.rect.centery - self.hero.chest_block.rect.centery + 12, 2)) >= 45:
@@ -150,7 +150,7 @@ class Game:
                 else:
                     pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
                     self.menu.blit(font.render('Chest', True, (255, 255, 255)), (SIZE[0] - 36, 29))
-                    pygame.draw.rect(self.menu, (255, 255, 255), (1 + (self.hero.chest_menu_pos - 1) * 26, 29, 26, 26),
+                    pygame.draw.rect(self.menu, (255, 255, 255), (1 + (self.hero.menu_pos - 1) * 26, 29, 26, 26),
                                      1)
                     pos = 0
                     for n in self.hero.chest_block.content:
@@ -171,25 +171,13 @@ class Game:
                             self.hero.chest_block.content.remove(n)
                     del pos
             else:
-                # Меню крафта
-                pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
-                self.menu.blit(font.render('Craft', True, (255, 255, 255)), (SIZE[0] - 35, 29))
-
-                self.hero.craft_available.clear()
-                for n in craft_list:
-                    for n0 in n[1]:
-                        for item in self.hero.inventory:
-                            if (n0[0] == item[0]) and (n0[1] <= item[1]):
-                                break
-                        else:
-                            break
-                    else:
-                        self.hero.craft_available.append(n)
-
+                # Меню печи
+                self.hero.furnace_available.clear()
                 for n in self.block:
-                    if n.Visible and (n.name == 'crafting_table'):
-                        if sqrt(pow(self.hero.x - n.rect.x - 1, 2) + pow(self.hero.y - n.rect.y + 12, 2)) < 45:
-                            for ct in crafting_table_list:
+                    if n.Visible and (n.name == 'furnace'):
+                        if sqrt(pow(self.hero.rect.centerx - n.rect.centerx, 2) +
+                                pow(self.hero.rect.centery - n.rect.centery, 2)) < 45:
+                            for ct in furnace_list:
                                 for n0 in ct[1]:
                                     for item in self.hero.inventory:
                                         if (n0[0] == item[0]) and (n0[1] <= item[1]):
@@ -197,30 +185,84 @@ class Game:
                                     else:
                                         break
                                 else:
-                                    self.hero.craft_available.append(ct)
+                                    self.hero.furnace_available.append(ct)
                             break
+                if self.hero.furnace_available:
+                    if self.hero.menu_pos > len(self.hero.furnace_available):
+                        self.hero.menu_pos = len(self.hero.furnace_available)
+                    if (self.hero.menu_pos == 0) and (len(self.hero.furnace_available) > 0):
+                        self.hero.menu_pos = 1
 
-                if self.hero.craft_menu_pos > len(self.hero.craft_available):
-                    self.hero.craft_menu_pos = len(self.hero.craft_available)
-                if (self.hero.craft_menu_pos == 0) and (len(self.hero.craft_available) > 0):
-                    self.hero.craft_menu_pos = 1
-
-                if self.hero.craft_menu_pos > SIZE[0] // 26 + 1:
-                    pos = SIZE[0] // 26 + 1 - self.hero.craft_menu_pos
-                else:
-                    pos = 0
-
-                pygame.draw.rect(self.menu, (255, 255, 255),
-                                 (1 + (self.hero.craft_menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
-                for n in self.hero.craft_available:
-                    if isinstance(links[n[0][0]], list):
-                        self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
+                    if self.hero.menu_pos > SIZE[0] // 26 + 1:
+                        pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
                     else:
-                        self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
+                        pos = 0
 
-                    self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
-                    pos += 1
-                del pos
+                    pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
+                    self.menu.blit(font.render('Furnace', True, (255, 255, 255)), (SIZE[0] - 51, 29))
+                    pygame.draw.rect(self.menu, (255, 255, 255),
+                                     (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
+                    for n in self.hero.furnace_available:
+                        if isinstance(links[n[0][0]], list):
+                            self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
+                        else:
+                            self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
+
+                        self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
+                        pos += 1
+                    del pos
+
+                else:
+                    # Меню крафта
+                    pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
+                    self.menu.blit(font.render('Craft', True, (255, 255, 255)), (SIZE[0] - 35, 29))
+
+                    self.hero.craft_available.clear()
+                    for n in craft_list:
+                        for n0 in n[1]:
+                            for item in self.hero.inventory:
+                                if (n0[0] == item[0]) and (n0[1] <= item[1]):
+                                    break
+                            else:
+                                break
+                        else:
+                            self.hero.craft_available.append(n)
+
+                    for n in self.block:
+                        if n.Visible and (n.name == 'crafting_table'):
+                            if sqrt(pow(self.hero.x - n.rect.x - 1, 2) + pow(self.hero.y - n.rect.y + 12, 2)) < 45:
+                                for ct in crafting_table_list:
+                                    for n0 in ct[1]:
+                                        for item in self.hero.inventory:
+                                            if (n0[0] == item[0]) and (n0[1] <= item[1]):
+                                                break
+                                        else:
+                                            break
+                                    else:
+                                        self.hero.craft_available.append(ct)
+                                break
+
+                    if self.hero.menu_pos > len(self.hero.craft_available):
+                        self.hero.menu_pos = len(self.hero.craft_available)
+                    if (self.hero.menu_pos == 0) and (len(self.hero.craft_available) > 0):
+                        self.hero.menu_pos = 1
+
+                    if self.hero.menu_pos > SIZE[0] // 26 + 1:
+                        pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
+                    else:
+                        pos = 0
+
+                    pygame.draw.rect(self.menu, (255, 255, 255),
+                                     (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
+                    for n in self.hero.craft_available:
+                        if isinstance(links[n[0][0]], list):
+                            self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
+                        else:
+                            self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
+
+                        self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
+                        pos += 1
+                    del pos
 
             # Меню жизни
             self.hp_menu.fill((107, 105, 105))
@@ -320,12 +362,16 @@ class Game:
                         break
             else:
                 # Стоимость крафта
+                available = self.hero.craft_available
+                if self.hero.furnace_available:
+                    available = self.hero.furnace_available
+
                 if (SIZE[1] + 28 <= self.hero.cursor[1] <= SIZE[1] + 48) and not self.hero.chest_block:
-                    for item in range(0, len(self.hero.craft_available)):
+                    for item in range(0, len(available)):
                         if 4 + item * 26 <= self.hero.cursor[0] <= 24 + item * 26:
 
                             text = '| '
-                            for unit in self.hero.craft_available[item][1]:
+                            for unit in available[item][1]:
                                 text += str(unit[1]) + ' ' + str(unit[0]).replace('_', ' ') + ' | '
 
                             pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10,
@@ -338,6 +384,7 @@ class Game:
                                                                                     self.hero.cursor[1] - 18))
                             del text
                             break
+                del available
 
             # Счётчик FPS
             time_delta = (datetime.now() - time0).microseconds / 1000000
