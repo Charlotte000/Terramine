@@ -133,13 +133,25 @@ if __name__ == 'classes.Pig':
                             _go = False
                             break
 
-            if self.active < Pig.active_time:
-                for an in animals['pig']:
-                    if (an != self) and (an.active < Pig.active_time):
-                        if pygame.sprite.collide_rect(self, an):
+            for an in animals['pig']:
+                if an != self:
+                    if pygame.sprite.collide_rect(self, an):
+                        if self.active < Pig.active_time and an.active < Pig.active_time:
                             self.active = an.active = Pig.active_time
                             self.active_cooldown = an.active_cooldown = 1
                             animals['pig'].append(Pig(self.rect.x, self.rect.y))
+                        if dx > 0:
+                            self.rect.right = an.rect.left
+                            self.dx = 0
+                        elif dx < 0:
+                            self.rect.left = an.rect.right
+                            self.dx = 0
+                        if dy > 0:
+                            self.rect.bottom = an.rect.top
+                            self.dy = 0
+                        elif dy < 0:
+                            self.rect.top = an.rect.bottom
+                            self.dy = 0
 
             if self.to_jump:
                 self.to_jump = _go
