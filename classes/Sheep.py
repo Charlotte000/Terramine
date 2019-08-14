@@ -117,65 +117,33 @@ if __name__ == 'classes.Sheep':
                 game.screen.blit(pygame.transform.flip(self.image, True, False), pos)
 
         def collision(self, dx, dy, block, animals):
-            _go = True
-            for n in block:
-                if (n.Collision or n.name == 'fence') and n.Visible:
-                    if pygame.sprite.collide_rect(self, n):
-                        if dx > 0:
-                            self.rect.right = n.rect.left
-                            self.dx = 0
-                            if self.Ground:
-                                self.to_jump = True
-                                for unit in block:
-                                    if unit.Visible and unit.Collision and (n != unit):
-                                        if unit.rect.x == n.rect.x:
-                                            if unit.rect.y == n.rect.y - 25:
-                                                _go = False
-                                                break
-                        elif dx < 0:
-                            self.rect.left = n.rect.right
-                            self.dx = 0
-                            if self.Ground:
-                                self.to_jump = True
-                                for unit in block:
-                                    if unit.Visible and unit.Collision and (n != unit):
-                                        if unit.rect.x == n.rect.x:
-                                            if unit.rect.y == n.rect.y - 25:
-                                                _go = False
-                                                break
-                        if dy > 0:
-                            self.rect.bottom = n.rect.top
-                            self.dy = 0
-                            self.Ground = True
-                        elif dy < 0:
-                            self.rect.top = n.rect.bottom
-                            self.dy = 0
-                        if n.name == 'fence':
-                            self.to_jump = False
-                            _go = False
-                            break
-            for an in animals['sheep']:
-                if an != self:
-                    if pygame.sprite.collide_rect(self, an):
-                        if self.active < Sheep.active_time and an.active < Sheep.active_time:
-                            self.active = an.active = Sheep.active_time
-                            self.active_cooldown = an.active_cooldown = 1
-                            animals['sheep'].append(Sheep(self.rect.x, self.rect.y))
-                        if dx > 0:
-                            self.rect.right = an.rect.left
-                            self.dx = 0
-                        elif dx < 0:
-                            self.rect.left = an.rect.right
-                            self.dx = 0
-                        if dy > 0:
-                            self.rect.bottom = an.rect.top
-                            self.dy = 0
-                        elif dy < 0:
-                            self.rect.top = an.rect.bottom
-                            self.dy = 0
+            collide_objects = [n for n in block if n.Visible and (n.Collision or n.name == 'fence')] + \
+                              [an for an in animals['sheep'] if an != self]
 
-            if self.to_jump:
-                self.to_jump = _go
-                if _go is False:
-                    self.direction *= -1
-            del _go
+            for n in pygame.Rect.collidelistall(self.rect, collide_objects):
+                if dx:
+                    if dx > 0:
+                        self.rect.right = collide_objects[n].rect.left
+                    elif dx < 0:
+                        self.rect.left = collide_objects[n].rect.right
+                    self.dx = 0
+                    if collide_objects[n] in block and self.Ground:
+                        self.to_jump = True
+                        if collide_objects[n].name == "fence":
+                            self.to_jump = False
+                        else:
+                            for unit in block:
+                                if unit.Visible and unit.Collision and (collide_objects[n] != unit):
+                                    if unit.rect.x == collide_objects[n].rect.x:
+                                        if unit.rect.y == collide_objects[n].rect.y - 25:
+                                            self.to_jump = False
+                                            self.direction *= -1
+                                            break
+                if dy > 0:
+                    self.rect.bottom = collide_objects[n].rect.top
+                    self.dy = 0
+                    if collide_objects[n] in block:
+                        self.Ground = True
+                elif dy < 0:
+                    self.rect.top = collide_objects[n].rect.bottom
+                    self.dy = 0
