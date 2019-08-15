@@ -519,9 +519,7 @@ if __name__ == 'classes.Player':
                 if self.chest_block:
                     if self.menu_pos <= len(self.chest_block.content):
                         if self.add_item(self.inventory, [self.chest_block.content[self.menu_pos - 1][0], 1]):
-                            self.chest_block.content[self.menu_pos - 1][1] -= 1
-                            if self.chest_block.content[self.menu_pos - 1][1] <= 0:
-                                self.chest_block.content.remove(self.chest_block.content[self.menu_pos - 1])
+                        	self.remove_item(self.chest_block.content, [self.chest_block.content[self.menu_pos - 1][0], 1])
                 elif self.furnace_available:
                     if 1 <= self.menu_pos <= len(self.furnace_available):
                         if self.add_item(self.inventory, self.furnace_available[self.menu_pos - 1][0]):

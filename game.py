@@ -541,7 +541,7 @@ class Game:
     def pause(self):
         img = pygame.image.frombuffer(pygame.image.tostring(window, 'RGBA'), (SIZE[0], SIZE[1] + 56), 'RGBA')
         font_pause = pygame.font.Font(r'data\font.ttf', 25)
-        font_console = pygame.font.Font(None, 25)
+        font_console = pygame.font.SysFont('serif', 20)
 
         write_save_name = self.save_name[:-5]
         write_text = ''
