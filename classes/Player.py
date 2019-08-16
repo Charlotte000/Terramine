@@ -519,14 +519,14 @@ if __name__ == 'classes.Player':
                 if self.chest_block:
                     if self.menu_pos <= len(self.chest_block.content):
                         if self.add_item(self.inventory, [self.chest_block.content[self.menu_pos - 1][0], 1]):
-                        	self.remove_item(self.chest_block.content, [self.chest_block.content[self.menu_pos - 1][0], 1])
+                            self.remove_item(self.chest_block.content, [self.chest_block.content[self.menu_pos - 1][0], 1])
                 elif self.furnace_available:
-                    if 1 <= self.menu_pos <= len(self.furnace_available):
+                    if self.menu_pos <= len(self.furnace_available):
                         if self.add_item(self.inventory, self.furnace_available[self.menu_pos - 1][0]):
                             for rem_item in self.furnace_available[self.menu_pos - 1][1]:
                                 self.remove_item(self.inventory, rem_item)
                 else:
-                    if 1 <= self.menu_pos <= len(self.craft_available):
+                    if self.menu_pos <= len(self.craft_available):
                         if self.add_item(self.inventory, self.craft_available[self.menu_pos - 1][0]):
                             for rem_item in self.craft_available[self.menu_pos - 1][1]:
                                 self.remove_item(self.inventory, rem_item)
@@ -542,25 +542,11 @@ if __name__ == 'classes.Player':
                 self.k_down = False
 
             if self.k_left:
-                if self.chest_block is None:
-                    self.menu_pos -= 1
-                    if self.menu_pos <= 0:
-                        self.menu_pos = len(self.craft_available)
-                else:
-                    self.menu_pos -= 1
-                    if self.menu_pos < 1:
-                        self.menu_pos = 19
+                self.menu_pos -= 1
                 self.k_left = False
 
             if self.k_right:
-                if self.chest_block is None:
-                    self.menu_pos += 1
-                    if self.menu_pos > len(self.craft_available):
-                        self.menu_pos = 1
-                else:
-                    self.menu_pos += 1
-                    if self.menu_pos > 19:
-                        self.menu_pos = 1
+                self.menu_pos += 1
                 self.k_right = False
 
             if self.q:

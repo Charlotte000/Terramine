@@ -144,6 +144,11 @@ class Game:
 
             if self.hero.chest_block:
                 # Меню сундука
+                if self.hero.menu_pos > len(self.hero.chest_block.content):
+                    self.hero.menu_pos = len(self.hero.chest_block.content)
+                if (self.hero.menu_pos == 0) and (len(self.hero.chest_block.content) > 0):
+                    self.hero.menu_pos = 1
+
                 if sqrt(pow(self.hero.rect.centerx - self.hero.chest_block.rect.centerx - 1, 2) +
                         pow(self.hero.rect.centery - self.hero.chest_block.rect.centery + 12, 2)) >= 45:
                     self.hero.chest_block = None
