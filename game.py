@@ -357,14 +357,24 @@ class Game:
                         else:
                             text = description[name]
 
-                        pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                   font.size(text)[0] + 2, 15))
-                        pygame.draw.rect(window, (215, 215, 215), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                   font.size(text)[0] + 2, 15), 1)
-                        window.blit(font.render(text, False, (255, 255, 255)),
-                                    (self.hero.cursor[0] + 12, self.hero.cursor[1] - 18))
+                        if self.hero.cursor[0] + 10 + font.size(text)[0] + 2 < SIZE[0]:
+                            pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                                                       font.size(text)[0] + 2, 15))
+                            pygame.draw.rect(window, (215, 215, 215), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                                                       font.size(text)[0] + 2, 15), 1)
+                            window.blit(font.render(text, False, (255, 255, 255)),
+                                        (self.hero.cursor[0] + 12, self.hero.cursor[1] - 18))
+                        else:
+                            pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                                                       -font.size(text)[0] - 2, 15))
+                            pygame.draw.rect(window, (215, 215, 215), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                                                       -font.size(text)[0] - 2, 15), 1)
+                            window.blit(font.render(text, False, (255, 255, 255)),
+                                        (self.hero.cursor[0] + 10 - font.size(text)[0], self.hero.cursor[1] - 18))
                         del name, text
                         break
+
+
             else:
                 # Стоимость крафта
                 available = self.hero.craft_available
