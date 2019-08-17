@@ -100,48 +100,33 @@ if __name__ == 'classes.Zombie':
                 self.anim_r.blit(game.screen, game.camera.get_pos(self.rect.x, self.rect.y))
 
         def collision(self, dx, dy, block, hero):
-            _go = True
-            for n in block:
-                if n.Visible and n.Collision:
-                    if pygame.sprite.collide_rect(self, n):
-                        if dx > 0:
-                            self.rect.right = n.rect.left
-                            self.dx = 0
-                            if self.Ground:
-                                self.to_jump = True
-                                if n.rect.y < self.rect.y:
-                                    _go = False
-                        elif dx < 0:
-                            self.rect.left = n.rect.right
-                            self.dx = 0
-                            if self.Ground:
-                                self.to_jump = True
-                                if n.rect.y < self.rect.y:
-                                    _go = False
-                        if dy > 0:
-                            self.rect.bottom = n.rect.top
-                            if self.dy > 12:
-                                self.hp -= self.dy // 8
-                            self.dy = 0
-                            self.Ground = True
-                        elif dy < 0:
-                            self.rect.top = n.rect.bottom
-                            self.dy = 0
-            if self.to_jump:
-                self.to_jump = _go
-            del _go
-            if pygame.sprite.collide_rect(self, hero):
-                if dx > 0:
-                    self.rect.right = hero.rect.left
-                    self.dx = 0
-                elif dx < 0:
-                    self.rect.left = hero.rect.right
-                    self.dx = 0
-                if dy > 0:
-                    self.rect.bottom = hero.rect.top
-                    self.dy = 0
-                elif dy < 0:
-                    self.rect.top = hero.rect.bottom
-                    self.dy = 0
+            collide_objects = [n for n in block if n.Visible and n.Collision] + [hero]
+            for n in pygame.Rect.collidelistall(self.rect, collide_objects):
+                if collide_objects[n] == hero.rect:
+                    hero.hp -= Zombie.damage
 
-                hero.hp -= Zombie.damage
+                if dx:
+                    self.dx = 0
+                    if collide_objects[n] in block and self.Ground:
+                        self.to_jump = True
+                        if collide_objects[n].rect.y < self.rect.y:
+                            self.to_jump = False
+                    if dx > 0:
+                        self.rect.right = collide_objects[n].rect.left
+                        self.dx = 0
+
+                    elif dx < 0:
+                        self.rect.left = collide_objects[n].rect.right
+                        self.dx = 0
+
+                if dy > 0:
+                    self.rect.bottom = collide_objects[n].rect.top
+                    self.dy = 0
+                    if collide_objects[n] in block:
+                        self.Ground = True
+                        if self.dy > 12:
+                            self.hp -= self.dy // 8
+
+                elif dy < 0:
+                    self.rect.top = collide_objects[n].rect.bottom
+                    self.dy = 0

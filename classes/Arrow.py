@@ -21,6 +21,7 @@ if __name__ == 'classes.Arrow':
         def __init__(self, x, y, x1, y1):
             self.x, self.y = x, y
             self.aim = x1, y1
+            self.freeze = False
 
             r = sqrt(pow(self.aim[0] - self.x, 2) + pow(self.aim[1] - self.y, 2))
 
@@ -43,7 +44,7 @@ if __name__ == 'classes.Arrow':
             if (game.camera.x - 20 < self.rect.x < game.camera.x + SIZE[0] + 5) and \
                     (game.camera.y - 20 < self.rect.y < game.camera.y + SIZE[1] + 5):
                 # Гравитация
-                if self.dx != 0 or self.dy != 0:
+                if not self.freeze:
                     self.dy += Arrow.gravity
 
                     # Поворот картинки
@@ -71,33 +72,33 @@ if __name__ == 'classes.Arrow':
             game.screen.blit(self.image0, game.camera.get_pos(self.rect.x, self.rect.y))
 
         def collision(self, game):
-            for cube in game.block:
-                if cube.Visible and cube.Collision:
-                    if pygame.sprite.collide_rect(self, cube):
-                        self.dx = self.dy = 0
-                        self.countdown -= 1
-                        break
-            for types in game.animals:
-                for unit in game.animals[types]:
-                    if unit.Visible:
-                        if pygame.sprite.collide_rect(self, unit):
-                            unit.hp -= Arrow.damage
-                            if self.dx > 0:
-                                unit.dx += 15
-                            elif self.dx < 0:
-                                unit.dx -= 15
-                            unit.dy -= 5
-                            self.x = -50
-                            break
-            for unit in game.enemy:
-                if unit.Visible:
-                    if pygame.sprite.collide_rect(self, unit):
-                        unit.hp -= Arrow.damage
-                        if type(unit) not in [Eye, Cthulhu, Worm]:
-                            if self.dx > 0:
-                                unit.dx += 15
-                            elif self.dx < 0:
-                                unit.dx -= 15
-                            unit.dy -= 5
-                        self.x = -50
-                        break
+            animal_list = [item for sublist in game.animals.values() for item in sublist if item.Visible]
+            collide_objects = [n for n in game.block if n.Visible and n.Collision] + \
+                              [en for en in game.enemy if en.Visible] + \
+                              animal_list
+
+            for n in pygame.Rect.collidelistall(self.rect, collide_objects):
+                if collide_objects[n] in game.block:
+                    self.freeze = True
+                    self.dx = self.dy = 0
+                    self.countdown -= 1
+                    break
+                elif collide_objects[n] in animal_list:
+                    collide_objects[n].hp -= Arrow.damage
+                    if self.dx > 0:
+                        collide_objects[n].dx += 15
+                    elif self.dx < 0:
+                        collide_objects[n].dx -= 15
+                    collide_objects[n].dy -= 5
+                    self.x = -50
+                    break
+                elif collide_objects[n] in game.enemy:
+                    collide_objects[n].hp -= Arrow.damage
+                    if type(collide_objects[n]) not in [Eye, Cthulhu, Worm]:
+                        if self.dx > 0:
+                            collide_objects[n].dx += 15
+                        elif self.dx < 0:
+                            collide_objects[n].dx -= 15
+                        collide_objects[n].dy -= 5
+                    self.x = -50
+                    break
