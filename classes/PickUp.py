@@ -9,10 +9,11 @@ if __name__ == 'classes.PickUp':
     class PickUp:
         gravity = 1
 
-        def __init__(self, x, y, name):
+        def __init__(self, x, y, name, count=1):
             self.dy = 0
             self.Ground = False
             self.name = name
+            self.count = count
 
             if type(links[name]) == list:
                 self.image0 = links[name][0]
@@ -49,5 +50,5 @@ if __name__ == 'classes.PickUp':
                     self.dy = 0
                     self.Ground = True
             if pygame.sprite.collide_rect(self, hero):
-                if hero.add_item(hero.inventory, [self.name, 1]):
+                if hero.add_item(hero.inventory, [self.name, self.count]):
                     pickup.remove(self)
