@@ -21,7 +21,7 @@ if __name__ == 'classes.Block':
             if content is not None:
                 self.content = content
             else:
-                self.content = []
+                self.content = [None] * 15
     
             if type(links[name]) == list:
                 self.resouce = links[name]

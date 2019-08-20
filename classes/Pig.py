@@ -41,7 +41,7 @@ if __name__ == 'classes.Pig':
 
                     # Движение & следование за приманкой
                     if pos[0] in range(0, SIZE[0] - 34):
-                        if game.hero.inventory_menu_pos <= len(game.hero.inventory) and \
+                        if game.hero.inventory[game.hero.inventory_menu_pos - 1] and \
                                 game.hero.inventory[game.hero.inventory_menu_pos - 1][0] == 'wheat_seed' and \
                                 abs(self.rect.x - game.hero.x) <= 250:
                             if self.rect.x > game.hero.x + 25:

@@ -124,23 +124,22 @@ class Game:
             pygame.draw.rect(self.menu, (215, 215, 215), (0, 0, SIZE[0], 28), 1)
             self.menu.blit(font.render('Inventory', True, (255, 255, 255)), (SIZE[0] - 61, 1))
             pygame.draw.rect(self.menu, (255, 255, 255), (1 + (self.hero.inventory_menu_pos - 1) * 26, 1, 26, 26), 1)
-            pos = 0
-            for n in self.hero.inventory:
-                # Draw item
-                if type(links[n[0]]) == list:
-                    self.menu.blit(pygame.transform.scale(links[n[0]][0], (20, 20)), (4 + pos * 26, 4))
-                else:
-                    self.menu.blit(pygame.transform.scale(links[n[0]], (20, 20)), (4 + pos * 26, 4))
 
-                if n[0] in ['sand', 'diamond', 'glass', 'wool']:
-                    self.menu.blit(font.render(str(n[1]), False, (0, 0, 0)), (4 + pos * 26, 3))
-                else:
-                    self.menu.blit(font.render(str(n[1]), False, (212, 212, 212)), (4 + pos * 26, 3))
-                pos += 1
+            for pos, n in enumerate(self.hero.inventory):
+                if n:
+                    # Draw item
+                    if type(links[n[0]]) == list:
+                        self.menu.blit(pygame.transform.scale(links[n[0]][0], (20, 20)), (4 + pos * 26, 4))
+                    else:
+                        self.menu.blit(pygame.transform.scale(links[n[0]], (20, 20)), (4 + pos * 26, 4))
 
-                # Delete item
-                if n[1] <= 0:
-                    self.hero.inventory.remove(n)
+                    if n[0] in ['sand', 'diamond', 'glass', 'wool']:
+                        self.menu.blit(font.render(str(n[1]), False, (0, 0, 0)), (4 + pos * 26, 3))
+                    else:
+                        self.menu.blit(font.render(str(n[1]), False, (212, 212, 212)), (4 + pos * 26, 3))
+                    # Delete item
+                    if n[1] <= 0:
+                        self.hero.inventory[pos] = None
 
             if self.hero.chest_block:
                 # Меню сундука
@@ -157,24 +156,22 @@ class Game:
                     self.menu.blit(font.render('Chest', True, (255, 255, 255)), (SIZE[0] - 36, 29))
                     pygame.draw.rect(self.menu, (255, 255, 255), (1 + (self.hero.menu_pos - 1) * 26, 29, 26, 26),
                                      1)
-                    pos = 0
-                    for n in self.hero.chest_block.content:
-                        # Draw
-                        if type(links[n[0]]) == list:
-                            self.menu.blit(pygame.transform.scale(links[n[0]][0], (20, 20)), (4 + pos * 26, 32))
-                        else:
-                            self.menu.blit(pygame.transform.scale(links[n[0]], (20, 20)), (4 + pos * 26, 32))
+                    for pos, n in enumerate(self.hero.chest_block.content):
+                        if n:
+                            # Draw
+                            if type(links[n[0]]) == list:
+                                self.menu.blit(pygame.transform.scale(links[n[0]][0], (20, 20)), (4 + pos * 26, 32))
+                            else:
+                                self.menu.blit(pygame.transform.scale(links[n[0]], (20, 20)), (4 + pos * 26, 32))
 
-                        if n[0] in ['sand', 'diamond', 'glass', 'wool']:
-                            self.menu.blit(font.render(str(n[1]), False, (0, 0, 0)), (4 + pos * 26, 31))
-                        else:
-                            self.menu.blit(font.render(str(n[1]), False, (212, 212, 212)), (4 + pos * 26, 31))
-                        pos += 1
+                            if n[0] in ['sand', 'diamond', 'glass', 'wool']:
+                                self.menu.blit(font.render(str(n[1]), False, (0, 0, 0)), (4 + pos * 26, 31))
+                            else:
+                                self.menu.blit(font.render(str(n[1]), False, (212, 212, 212)), (4 + pos * 26, 31))
 
-                        # Delete item
-                        if n[1] <= 0:
-                            self.hero.chest_block.content.remove(n)
-                    del pos
+                            # Delete item
+                            if n[1] <= 0:
+                                self.hero.chest_block.content[pos] = None
             else:
                 # Меню печи
                 self.hero.furnace_available.clear()
@@ -184,7 +181,7 @@ class Game:
                                 pow(self.hero.rect.centery - n.rect.centery, 2)) < 45:
                             for ct in furnace_list:
                                 for n0 in ct[1]:
-                                    for item in self.hero.inventory:
+                                    for item in [i for i in self.hero.inventory if i]:
                                         if (n0[0] == item[0]) and (n0[1] <= item[1]):
                                             break
                                     else:
@@ -225,7 +222,7 @@ class Game:
                     self.hero.craft_available.clear()
                     for n in craft_list:
                         for n0 in n[1]:
-                            for item in self.hero.inventory:
+                            for item in [i for i in self.hero.inventory if i]:
                                 if (n0[0] == item[0]) and (n0[1] <= item[1]):
                                     break
                             else:
@@ -238,7 +235,7 @@ class Game:
                             if sqrt(pow(self.hero.x - n.rect.x - 1, 2) + pow(self.hero.y - n.rect.y + 12, 2)) < 45:
                                 for ct in crafting_table_list:
                                     for n0 in ct[1]:
-                                        for item in self.hero.inventory:
+                                        for item in [i for i in self.hero.inventory if i]:
                                             if (n0[0] == item[0]) and (n0[1] <= item[1]):
                                                 break
                                         else:
@@ -292,14 +289,14 @@ class Game:
                 self.time += 2
                 if self.time > 300:
                     if self.hero.spawn_point:
-                        for item in self.hero.inventory:
+                        for item in [i for i in self.hero.inventory if i]:
                             self.pickup.append(PickUp(self.hero.x + randint(0, self.hero.rect.w),
                                                       self.hero.y + randint(0, self.hero.rect.h // 2),
                                                       item[0],
                                                       item[1]))
                         self.hero.x, self.hero.y = self.hero.spawn_point[-1]
                         self.hero.rect.x, self.hero.rect.y = self.hero.x, self.hero.y
-                        self.hero.inventory.clear()
+                        self.hero.inventory = [None] * 20
                         self.hero.hp = self.hero.hunger = 10
                         self.time = 0
                     else:
@@ -321,7 +318,7 @@ class Game:
             window.blit(self.hp_menu, (SIZE[0] - self.hp_menu.get_width(), 0))
 
             # Курсор
-            if self.hero.inventory_menu_pos <= len(self.hero.inventory):
+            if self.hero.inventory[self.hero.inventory_menu_pos - 1]:
                 if type(links[self.hero.inventory[self.hero.inventory_menu_pos - 1][0]]) == list:
                     window.blit(
                         pygame.transform.scale(links[self.hero.inventory[self.hero.inventory_menu_pos - 1][0]][0],
@@ -338,7 +335,7 @@ class Game:
             # Описание предмета
             if SIZE[1] + 4 <= self.hero.cursor[1] <= SIZE[1] + 24:
                 for item in range(0, len(self.hero.inventory)):
-                    if 4 + item * 26 <= self.hero.cursor[0] <= 24 + item * 26:
+                    if self.hero.inventory[item] and 4 + item * 26 <= self.hero.cursor[0] <= 24 + item * 26:
                         name = self.hero.inventory[item][0]
 
                         if name[-7:] == 'pickaxe':
@@ -464,6 +461,9 @@ class Game:
                 if n.key == pygame.K_ESCAPE:
                     self.pause()
                     break
+                if n.key == pygame.K_TAB:
+                    self.inventory()
+                    break
             if n.type == pygame.KEYUP:
                 if n.key == pygame.K_w:
                     self.hero.up = False
@@ -478,7 +478,7 @@ class Game:
                     if self.hero.inventory_menu_pos > 1:
                         self.hero.inventory_menu_pos -= 1
                 if n.button == 5:
-                    if self.hero.inventory_menu_pos < 19:
+                    if self.hero.inventory_menu_pos < 20:
                         self.hero.inventory_menu_pos += 1
 
         if (self.hero.cooldown == self.hero.cooldown0) and pygame.mouse.get_pressed()[0]:
@@ -721,6 +721,75 @@ class Game:
             window.blit(sfrc, (0, SIZE[1] / 4))
 
             window.blit(t_iron_pickaxe, (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
+
+            pygame.display.flip()
+
+    def inventory(self):
+        img = pygame.image.frombuffer(pygame.image.tostring(window, 'RGBA'), (SIZE[0], SIZE[1] + 56), 'RGBA')
+        font_pause = pygame.font.Font(r'data\font.ttf', 25)
+
+        pause = True
+
+        cells = []
+        x, y = SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2
+        for _ in range(20):
+            cells.append(pygame.Rect(x + 3, y + 3, 29, 29))
+            x += 35
+            if x >= SIZE[0] / 2 + 35 * 5:
+                x = SIZE[0] / 2 - 35 * 5
+                y += 35
+
+        drag_item = None
+
+        while pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_TAB:
+                        self.hero.left = self.hero.right = self.hero.up = self.hero.down = \
+                            self.hero.right_click = self.hero.left_click = False
+                        pause = False
+
+            if pygame.mouse.get_pressed()[0]:
+                if drag_item is None:
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(cells)
+                    if num != -1 and self.hero.inventory[num]:
+                        drag_item = num
+            else:
+                if drag_item is not None:
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(cells)
+                    if num != -1:
+                        self.hero.inventory[num], self.hero.inventory[drag_item] = \
+                            self.hero.inventory[drag_item], self.hero.inventory[num]
+                drag_item = None
+
+            window.blit(img, (0, 0))
+
+            size = font_pause.size('Inventory')
+            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - size[0] / 2 - 3, 80, size[0] + 6, size[1] + 14))
+            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - size[0] / 2 - 3, 80, size[0] + 6, size[1] + 14), 1)
+            window.blit(font_pause.render('Inventory', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 87))
+
+            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2))
+            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2), 1)
+
+            for index, cell in enumerate(cells):
+                pygame.draw.rect(window, (215, 215, 215), cell, 1)
+                if self.hero.inventory[index]:
+                    icon = pygame.transform.scale(links[self.hero.inventory[index][0]].copy(), (20, 20))
+                    window.blit(icon, (cell.x + 4.5, cell.y + 4.5))
+                    window.blit(font.render(str(self.hero.inventory[index][1]), False, (212, 212, 212)),
+                                (cell.x + 4.5, cell.y + 4.5))
+
+            if drag_item is not None:
+                window.blit(links[self.hero.inventory[drag_item][0]], (pygame.mouse.get_pos()[0] - 10,
+                                                                       pygame.mouse.get_pos()[1] - 10))
+            else:
+                pygame.draw.line(window, (0, 0, 0), (pygame.mouse.get_pos()[0] - 5, pygame.mouse.get_pos()[1] - 5),
+                                 (pygame.mouse.get_pos()[0] + 5, pygame.mouse.get_pos()[1] + 5))
+                pygame.draw.line(window, (0, 0, 0), (pygame.mouse.get_pos()[0] - 5, pygame.mouse.get_pos()[1] + 5),
+                                 (pygame.mouse.get_pos()[0] + 5, pygame.mouse.get_pos()[1] - 5))
 
             pygame.display.flip()
 

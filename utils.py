@@ -65,8 +65,7 @@ if __name__ == 'utils':
         hero.hp, hero.hunger = load_text['hero']['hp'], load_text['hero']['hunger']
         hero.spawn_point = load_text['hero']['spawn_point']
 
-        for item in load_text['hero']['inventory']:
-            hero.inventory.append([item[0], item[1]])
+        hero.inventory = load_text['hero']['inventory']
 
         for unit in load_text['block']:
             block.append(Block(x=unit['x'], y=unit['y'], name=unit['name'], collision=unit['collision'],

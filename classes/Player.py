@@ -27,7 +27,7 @@ if __name__ == 'classes.Player':
             self.damage = 0.2
             self.hp = self.hp0 = 10
             self.hunger = 10
-            self.inventory = []
+            self.inventory = [None] * 20
             self.cooldown = self.cooldown0 = 8
             self.bow_cooldown = self.bow_cooldown0 = 16
             self.spawn_point = []
@@ -101,7 +101,7 @@ if __name__ == 'classes.Player':
                 self.hp -= 0.001
 
             _hp = 0
-            for item in self.inventory:
+            for item in [i for i in self.inventory if i]:
                 if item[0] == 'iron_helmet':
                     _hp += 3
                 elif item[0] == 'iron_chestplate':
@@ -233,15 +233,23 @@ if __name__ == 'classes.Player':
 
             if self.left_click:
                 xx, yy = game.camera.get_pos(self.rect.centerx, self.rect.centery)
-                if sqrt(pow(self.cursor[0] - xx, 2) + pow(self.cursor[1] - yy, 2)) <= self.reach and \
-                   ((self.inventory_menu_pos <= len(self.inventory) and self.inventory[self.inventory_menu_pos - 1][0] != 'bow') or \
-                    self.inventory_menu_pos > len(self.inventory)):
+
+                if self.inventory[self.inventory_menu_pos - 1]:
+                    if self.inventory[self.inventory_menu_pos - 1][0] == 'bow' and \
+                            self.bow_cooldown0 == self.bow_cooldown:
+                        self.bow_cooldown0 -= 1
+
+                        if self.remove_item(self.inventory, ['arrow', 1]):
+                            game.arrow.append(Arrow(self.rect.centerx, self.rect.centery,
+                                                    self.cursor[0] + game.camera.x, self.cursor[1] + game.camera.y))
+                        return
+                if sqrt(pow(self.cursor[0] - xx, 2) + pow(self.cursor[1] - yy, 2)) <= self.reach:
                     for e in game.enemy:
                         _x, _y = game.camera.get_pos(e.rect.x, e.rect.y)
                         if (_x < self.cursor[0] < _x + e.rect.width) and (_y < self.cursor[1] < _y + e.rect.height):
                             _dx = 8
                             e.hp -= self.damage
-                            if self.inventory_menu_pos <= len(self.inventory):
+                            if self.inventory[self.inventory_menu_pos - 1]:
                                 if self.inventory[self.inventory_menu_pos - 1][0] == 'wooden_sword':
                                     e.hp -= 0.4
                                     _dx += 2
@@ -271,7 +279,7 @@ if __name__ == 'classes.Player':
                             _x, _y = game.camera.get_pos(a.rect.x, a.rect.y)
                             if (_x < self.cursor[0] < _x + a.rect.width) and (_y < self.cursor[1] < _y + a.rect.height):
 
-                                if (a in game.animals['sheep']) and (self.inventory_menu_pos <= len(self.inventory)) and \
+                                if (a in game.animals['sheep']) and (self.inventory[self.inventory_menu_pos - 1]) and \
                                         (self.inventory[self.inventory_menu_pos - 1][0] == 'scissors'):
                                     if a.grow_time0 == Sheep.grow_time:
                                         a.grow_time0 -= 1
@@ -279,7 +287,7 @@ if __name__ == 'classes.Player':
 
                                 _dx = 8
                                 a.hp -= self.damage
-                                if self.inventory_menu_pos <= len(self.inventory):
+                                if self.inventory[self.inventory_menu_pos - 1]:
                                     if self.inventory[self.inventory_menu_pos - 1][0] == 'wooden_sword':
                                         a.hp -= self.damage * 2
                                         _dx += 2
@@ -310,7 +318,7 @@ if __name__ == 'classes.Player':
                                     if (_x + 1 <= self.cursor[0] <= _x + 24) and (_y + 1 <= self.cursor[1] <= _y + 24):
                                         if (n.name != 'bedrock') and (n.name != 'altar'):
                                             n.hp0 -= self.block_damage
-                                            if self.inventory_menu_pos <= len(self.inventory):
+                                            if self.inventory[self.inventory_menu_pos - 1]:
                                                 _name = self.inventory[self.inventory_menu_pos - 1][0]
                                                 if n.name in axe_damage:
                                                     if _name == 'wooden_axe':
@@ -352,7 +360,7 @@ if __name__ == 'classes.Player':
                                     if n.Visible:
                                         _x, _y = game.camera.get_pos(n.x, n.y)
                                         if (_x + 1 <= self.cursor[0] <= _x + 24) and (_y + 1 <= self.cursor[1] <= _y + 24):
-                                            if self.inventory_menu_pos <= len(self.inventory):
+                                            if self.inventory[self.inventory_menu_pos - 1]:
                                                 if self.inventory[self.inventory_menu_pos - 1][0] == 'wooden_hammer':
                                                     n.hp -= self.block_damage * 1.7
                                                 elif self.inventory[self.inventory_menu_pos - 1][0] == 'stone_hammer':
@@ -367,17 +375,6 @@ if __name__ == 'classes.Player':
                                                     game.wall.remove(n)
                                             break
 
-                if self.inventory_menu_pos <= len(self.inventory):
-                    if self.inventory[self.inventory_menu_pos - 1][0] == 'bow' and \
-                            self.bow_cooldown0 == self.bow_cooldown:
-                        self.bow_cooldown0 -= 1
-                        for item in self.inventory:
-                            if item[0] == 'arrow':
-                                item[1] -= 1
-                                game.arrow.append(Arrow(self.rect.centerx, self.rect.centery,
-                                                        self.cursor[0] + game.camera.x, self.cursor[1] + game.camera.y))
-                                break
-
             if self.right_click:
                 xx, yy = game.camera.get_pos(self.rect.centerx, self.rect.centery)
                 if sqrt(pow(self.cursor[0] - xx, 2) + pow(self.cursor[1] - yy, 2)) <= self.reach:
@@ -390,28 +387,26 @@ if __name__ == 'classes.Player':
 
                     _name = ''
 
-                    if self.inventory_menu_pos <= len(self.inventory):
+                    if self.inventory[self.inventory_menu_pos - 1]:
                         if self.inventory[self.inventory_menu_pos - 1][1] <= 0:
                             go = False
                         else:
                             _name = self.inventory[self.inventory_menu_pos - 1][0]
-                    else:
-                        go = False
 
                     if _name == 'bread':
                         self.inventory[self.inventory_menu_pos - 1][1] -= 1
                         go = False
                         self.hunger += 2
-                    if _name == 'mushroom_stew':
+                    elif _name == 'mushroom_stew':
                         self.inventory[self.inventory_menu_pos - 1][1] -= 1
                         go = False
                         self.hunger += 3
-                    if _name in ['cooked_porkchop', 'cooked_fowl', 'cooked_mutton']:
+                    elif _name in ['cooked_porkchop', 'cooked_fowl', 'cooked_mutton']:
                         self.inventory[self.inventory_menu_pos - 1][1] -= 1
                         go = False
                         self.hunger += 4
 
-                    if _name[-3:] == 'axe' or _name[-7:] == 'pickaxe' or _name[-6:] == 'shovel' or \
+                    elif _name[-3:] == 'axe' or _name[-7:] == 'pickaxe' or _name[-6:] == 'shovel' or \
                             _name[-5:] == 'sword' or _name[-6:] == 'hammer' or _name == 'grown_wheat' or \
                             _name[-8:] == 'porkchop' or _name == 'arrow' or _name == 'bow' or  _name[-4:] == 'fowl' or \
                             _name[-5:] == 'ingot' or _name == 'diamond' or _name == 'iron_helmet' or \
@@ -444,9 +439,7 @@ if __name__ == 'classes.Player':
                                 go = False
 
                                 if (n.name == 'altar') and (_name == 'eye_call'):
-                                    for qwe in self.inventory:
-                                        if qwe[0] == 'eye_call':
-                                            qwe[1] -= 1
+                                    self.remove_item(self.inventory, ['eye_call', 1])
                                     game.enemy.append(Eye(self.x - 800, self.y - 800))
                                     go = False
 
@@ -505,7 +498,7 @@ if __name__ == 'classes.Player':
                         if _name[-4:] == 'wall':
                             self.inventory[self.inventory_menu_pos - 1][1] -= 1
                             game.wall.append(Wall(_x, _y, self.inventory[self.inventory_menu_pos - 1][0], explored=True))
-                        else:
+                        elif _name != '':
                             self.inventory[self.inventory_menu_pos - 1][1] -= 1
                             if self.inventory[self.inventory_menu_pos - 1][0] != 'wheat_seed':
                                 game.block.append(Block(_x, _y, self.inventory[self.inventory_menu_pos - 1][0],
@@ -535,7 +528,7 @@ if __name__ == 'classes.Player':
 
             if self.k_down:
                 if self.chest_block:
-                    if self.inventory_menu_pos <= len(self.inventory):
+                    if self.inventory[self.inventory_menu_pos - 1]:
                         if self.add_item(self.chest_block.content, [self.inventory[self.inventory_menu_pos - 1][0], 1]):
                             self.remove_item(self.inventory, [self.inventory[self.inventory_menu_pos - 1][0], 1])
 
@@ -550,7 +543,7 @@ if __name__ == 'classes.Player':
                 self.k_right = False
 
             if self.q:
-                if self.inventory_menu_pos <= len(self.inventory):
+                if self.inventory[self.inventory_menu_pos - 1]:
                     if pygame.key.get_mods() == 1:
                         self.inventory[self.inventory_menu_pos - 1][1] -= 50
                     else:
@@ -559,21 +552,19 @@ if __name__ == 'classes.Player':
 
         def add_item(self, inventory, item):
             for z in inventory:
-                if z[0] == item[0]:
+                if z and z[0] == item[0]:
                     z[1] += item[1]
                     return True
-            if len(inventory) < 19:
-                inventory.append(item[:])
-                return True
+            for index, cell in enumerate(inventory):
+                if not cell:
+                    inventory[index] = item[:]
+                    return True
             return False
 
         def remove_item(self, inventory, item):
             for i in inventory:
-                if i[0] == item[0]:
-                    if i[1] > item[1]:
+                if i and i[0] == item[0]:
+                    if i[1] >= item[1]:
                         i[1] -= item[1]
-                        return True
-                    elif i[1] == item[1]:
-                        inventory.remove(i)
                         return True
             return False
