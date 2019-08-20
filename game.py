@@ -23,7 +23,6 @@ from data.textures.loader import t_iron_pickaxe, links
 from settings import SIZE, F_SIZE, DEBUG, description, craft_list, crafting_table_list, minimap, furnace_list
 from utils import read_save, write_save, create_map
 
-
 pygame.font.init()
 font = pygame.font.Font(r'data\font.ttf', 10)
 
@@ -141,45 +140,67 @@ class Game:
                     if n[1] <= 0:
                         self.hero.inventory[pos] = None
 
-            if self.hero.chest_block:
-                # Меню сундука
-                if self.hero.menu_pos > len(self.hero.chest_block.content):
-                    self.hero.menu_pos = len(self.hero.chest_block.content)
-                if (self.hero.menu_pos == 0) and (len(self.hero.chest_block.content) > 0):
+            # Меню печи
+            self.hero.furnace_available.clear()
+            for n in self.block:
+                if n.Visible and (n.name == 'furnace'):
+                    if sqrt(pow(self.hero.rect.centerx - n.rect.centerx, 2) +
+                            pow(self.hero.rect.centery - n.rect.centery, 2)) < 45:
+                        for ct in furnace_list:
+                            for n0 in ct[1]:
+                                for item in [i for i in self.hero.inventory if i]:
+                                    if (n0[0] == item[0]) and (n0[1] <= item[1]):
+                                        break
+                                else:
+                                    break
+                            else:
+                                self.hero.furnace_available.append(ct)
+                        break
+            if self.hero.furnace_available:
+                if self.hero.menu_pos > len(self.hero.furnace_available):
+                    self.hero.menu_pos = len(self.hero.furnace_available)
+                if (self.hero.menu_pos == 0) and (len(self.hero.furnace_available) > 0):
                     self.hero.menu_pos = 1
 
-                if sqrt(pow(self.hero.rect.centerx - self.hero.chest_block.rect.centerx - 1, 2) +
-                        pow(self.hero.rect.centery - self.hero.chest_block.rect.centery + 12, 2)) >= 45:
-                    self.hero.chest_block = None
+                if self.hero.menu_pos > SIZE[0] // 26 + 1:
+                    pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
                 else:
-                    pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
-                    self.menu.blit(font.render('Chest', True, (255, 255, 255)), (SIZE[0] - 36, 29))
-                    pygame.draw.rect(self.menu, (255, 255, 255), (1 + (self.hero.menu_pos - 1) * 26, 29, 26, 26),
-                                     1)
-                    for pos, n in enumerate(self.hero.chest_block.content):
-                        if n:
-                            # Draw
-                            if type(links[n[0]]) == list:
-                                self.menu.blit(pygame.transform.scale(links[n[0]][0], (20, 20)), (4 + pos * 26, 32))
-                            else:
-                                self.menu.blit(pygame.transform.scale(links[n[0]], (20, 20)), (4 + pos * 26, 32))
+                    pos = 0
 
-                            if n[0] in ['sand', 'diamond', 'glass', 'wool']:
-                                self.menu.blit(font.render(str(n[1]), False, (0, 0, 0)), (4 + pos * 26, 31))
-                            else:
-                                self.menu.blit(font.render(str(n[1]), False, (212, 212, 212)), (4 + pos * 26, 31))
+                pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
+                self.menu.blit(font.render('Furnace', True, (255, 255, 255)), (SIZE[0] - 51, 29))
+                pygame.draw.rect(self.menu, (255, 255, 255),
+                                 (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
+                for n in self.hero.furnace_available:
+                    if isinstance(links[n[0][0]], list):
+                        self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
+                    else:
+                        self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
 
-                            # Delete item
-                            if n[1] <= 0:
-                                self.hero.chest_block.content[pos] = None
+                    self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
+                    pos += 1
+                del pos
+
             else:
-                # Меню печи
-                self.hero.furnace_available.clear()
+                # Меню крафта
+                pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
+                self.menu.blit(font.render('Craft', True, (255, 255, 255)), (SIZE[0] - 35, 29))
+
+                self.hero.craft_available.clear()
+                for n in craft_list:
+                    for n0 in n[1]:
+                        for item in [i for i in self.hero.inventory if i]:
+                            if (n0[0] == item[0]) and (n0[1] <= item[1]):
+                                break
+                        else:
+                            break
+                    else:
+                        self.hero.craft_available.append(n)
+
                 for n in self.block:
-                    if n.Visible and (n.name == 'furnace'):
-                        if sqrt(pow(self.hero.rect.centerx - n.rect.centerx, 2) +
-                                pow(self.hero.rect.centery - n.rect.centery, 2)) < 45:
-                            for ct in furnace_list:
+                    if n.Visible and (n.name == 'crafting_table'):
+                        if sqrt(pow(self.hero.x - n.rect.x - 1, 2) + pow(self.hero.y - n.rect.y + 12, 2)) < 45:
+                            for ct in crafting_table_list:
                                 for n0 in ct[1]:
                                     for item in [i for i in self.hero.inventory if i]:
                                         if (n0[0] == item[0]) and (n0[1] <= item[1]):
@@ -187,84 +208,30 @@ class Game:
                                     else:
                                         break
                                 else:
-                                    self.hero.furnace_available.append(ct)
+                                    self.hero.craft_available.append(ct)
                             break
-                if self.hero.furnace_available:
-                    if self.hero.menu_pos > len(self.hero.furnace_available):
-                        self.hero.menu_pos = len(self.hero.furnace_available)
-                    if (self.hero.menu_pos == 0) and (len(self.hero.furnace_available) > 0):
-                        self.hero.menu_pos = 1
 
-                    if self.hero.menu_pos > SIZE[0] // 26 + 1:
-                        pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
-                    else:
-                        pos = 0
+                if self.hero.menu_pos > len(self.hero.craft_available):
+                    self.hero.menu_pos = len(self.hero.craft_available)
+                if (self.hero.menu_pos == 0) and (len(self.hero.craft_available) > 0):
+                    self.hero.menu_pos = 1
 
-                    pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
-                    self.menu.blit(font.render('Furnace', True, (255, 255, 255)), (SIZE[0] - 51, 29))
-                    pygame.draw.rect(self.menu, (255, 255, 255),
-                                     (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
-                    for n in self.hero.furnace_available:
-                        if isinstance(links[n[0][0]], list):
-                            self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
-                        else:
-                            self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
-
-                        self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
-                        pos += 1
-                    del pos
-
+                if self.hero.menu_pos > SIZE[0] // 26 + 1:
+                    pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
                 else:
-                    # Меню крафта
-                    pygame.draw.rect(self.menu, (215, 215, 215), (0, 28, SIZE[0], 28), 1)
-                    self.menu.blit(font.render('Craft', True, (255, 255, 255)), (SIZE[0] - 35, 29))
+                    pos = 0
 
-                    self.hero.craft_available.clear()
-                    for n in craft_list:
-                        for n0 in n[1]:
-                            for item in [i for i in self.hero.inventory if i]:
-                                if (n0[0] == item[0]) and (n0[1] <= item[1]):
-                                    break
-                            else:
-                                break
-                        else:
-                            self.hero.craft_available.append(n)
-
-                    for n in self.block:
-                        if n.Visible and (n.name == 'crafting_table'):
-                            if sqrt(pow(self.hero.x - n.rect.x - 1, 2) + pow(self.hero.y - n.rect.y + 12, 2)) < 45:
-                                for ct in crafting_table_list:
-                                    for n0 in ct[1]:
-                                        for item in [i for i in self.hero.inventory if i]:
-                                            if (n0[0] == item[0]) and (n0[1] <= item[1]):
-                                                break
-                                        else:
-                                            break
-                                    else:
-                                        self.hero.craft_available.append(ct)
-                                break
-
-                    if self.hero.menu_pos > len(self.hero.craft_available):
-                        self.hero.menu_pos = len(self.hero.craft_available)
-                    if (self.hero.menu_pos == 0) and (len(self.hero.craft_available) > 0):
-                        self.hero.menu_pos = 1
-
-                    if self.hero.menu_pos > SIZE[0] // 26 + 1:
-                        pos = SIZE[0] // 26 + 1 - self.hero.menu_pos
+                pygame.draw.rect(self.menu, (255, 255, 255),
+                                 (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
+                for n in self.hero.craft_available:
+                    if isinstance(links[n[0][0]], list):
+                        self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
                     else:
-                        pos = 0
+                        self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
 
-                    pygame.draw.rect(self.menu, (255, 255, 255),
-                                     (1 + (self.hero.menu_pos - 1 + pos) * 26, 29, 26, 26), 1)
-                    for n in self.hero.craft_available:
-                        if isinstance(links[n[0][0]], list):
-                            self.menu.blit(pygame.transform.scale(links[n[0][0]][0], (20, 20)), (4 + pos * 26, 32))
-                        else:
-                            self.menu.blit(pygame.transform.scale(links[n[0][0]], (20, 20)), (4 + pos * 26, 32))
-
-                        self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
-                        pos += 1
-                    del pos
+                    self.menu.blit(font.render(str(n[0][1]), False, (255, 255, 255)), (4 + pos * 26, 31))
+                    pos += 1
+                del pos
 
             # Меню жизни
             self.hp_menu.fill((107, 105, 105))
@@ -361,30 +328,32 @@ class Game:
                             text = description[name]
 
                         if self.hero.cursor[0] + 10 + font.size(text)[0] + 2 < SIZE[0]:
-                            pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                       font.size(text)[0] + 2, 15))
-                            pygame.draw.rect(window, (215, 215, 215), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                       font.size(text)[0] + 2, 15), 1)
+                            pygame.draw.rect(window, (107, 105, 105),
+                                             (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                              font.size(text)[0] + 2, 15))
+                            pygame.draw.rect(window, (215, 215, 215),
+                                             (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                              font.size(text)[0] + 2, 15), 1)
                             window.blit(font.render(text, False, (255, 255, 255)),
                                         (self.hero.cursor[0] + 12, self.hero.cursor[1] - 18))
                         else:
-                            pygame.draw.rect(window, (107, 105, 105), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                       -font.size(text)[0] - 2, 15))
-                            pygame.draw.rect(window, (215, 215, 215), (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
-                                                                       -font.size(text)[0] - 2, 15), 1)
+                            pygame.draw.rect(window, (107, 105, 105),
+                                             (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                              -font.size(text)[0] - 2, 15))
+                            pygame.draw.rect(window, (215, 215, 215),
+                                             (self.hero.cursor[0] + 10, self.hero.cursor[1] - 20,
+                                              -font.size(text)[0] - 2, 15), 1)
                             window.blit(font.render(text, False, (255, 255, 255)),
                                         (self.hero.cursor[0] + 10 - font.size(text)[0], self.hero.cursor[1] - 18))
                         del name, text
                         break
-
-
             else:
                 # Стоимость крафта
                 available = self.hero.craft_available
                 if self.hero.furnace_available:
                     available = self.hero.furnace_available
 
-                if (SIZE[1] + 28 <= self.hero.cursor[1] <= SIZE[1] + 48) and not self.hero.chest_block:
+                if SIZE[1] + 28 <= self.hero.cursor[1] <= SIZE[1] + 48:
                     for item in range(0, len(available)):
                         if 4 + item * 26 <= self.hero.cursor[0] <= 24 + item * 26:
 
@@ -724,24 +693,36 @@ class Game:
 
             pygame.display.flip()
 
-    def inventory(self):
+    def inventory(self, chest=None):
         img = pygame.image.frombuffer(pygame.image.tostring(window, 'RGBA'), (SIZE[0], SIZE[1] + 56), 'RGBA')
         font_pause = pygame.font.Font(r'data\font.ttf', 25)
 
         pause = True
 
-        cells = []
+        inventory_cells = []
+        chest_cells = []
+
         x, y = SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2
         for _ in range(20):
-            cells.append(pygame.Rect(x + 3, y + 3, 29, 29))
+            inventory_cells.append(pygame.Rect(x + 3, y + 3, 29, 29))
             x += 35
             if x >= SIZE[0] / 2 + 35 * 5:
                 x = SIZE[0] / 2 - 35 * 5
                 y += 35
 
+        if chest:
+            x, y = SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 + 35
+            for _ in range(15):
+                chest_cells.append(pygame.Rect(x + 3, y + 3, 29, 29))
+                x += 35
+                if x >= SIZE[0] / 2 + 35 * 5:
+                    x = SIZE[0] / 2 - 35 * 2.5
+                    y += 35
+
         drag_item = None
 
         while pause:
+            # Key event
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
@@ -751,30 +732,64 @@ class Game:
                             self.hero.right_click = self.hero.left_click = False
                         pause = False
 
+            # Mouse drag
             if pygame.mouse.get_pressed()[0]:
                 if drag_item is None:
-                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(cells)
-                    if num != -1 and self.hero.inventory[num]:
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells + chest_cells)
+                    if num != -1:
                         drag_item = num
             else:
                 if drag_item is not None:
-                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(cells)
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells + chest_cells)
                     if num != -1:
-                        self.hero.inventory[num], self.hero.inventory[drag_item] = \
-                            self.hero.inventory[drag_item], self.hero.inventory[num]
+                        if num < 20:
+                            _in = self.hero.inventory[num]
+                        else:
+                            _in = chest[num - 20]
+
+                        if drag_item < 20:
+                            _out = self.hero.inventory[drag_item]
+                        else:
+                            _out = chest[drag_item - 20]
+
+                        if _out:
+                            if _in:
+                                if _in[0] == _out[0] and _in != _out:
+                                    _in[1] += _out[1]
+
+                                    if drag_item < 20:
+                                        self.hero.inventory[drag_item] = None
+                                    else:
+                                        chest[drag_item - 20] = None
+                                else:
+                                    _in[0], _in[1], _out[0], _out[1] = _out[0], _out[1], _in[0], _in[1]
+                            else:
+                                if num < 20:
+                                    self.hero.inventory[num] = _out[:]
+                                else:
+                                    chest[num - 20] = _out[:]
+                                if drag_item < 20:
+                                    self.hero.inventory[drag_item] = None
+                                else:
+                                    chest[drag_item - 20] = None
+
                 drag_item = None
 
             window.blit(img, (0, 0))
 
+            # Инфентарь
             size = font_pause.size('Inventory')
-            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - size[0] / 2 - 3, 80, size[0] + 6, size[1] + 14))
-            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - size[0] / 2 - 3, 80, size[0] + 6, size[1] + 14), 1)
-            window.blit(font_pause.render('Inventory', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 87))
+            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - size[0] / 2 - 3, 180, size[0] + 6, size[1] + 14))
+            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - size[0] / 2 - 3, 180, size[0] + 6, size[1] + 14),
+                             1)
+            window.blit(font_pause.render('Inventory', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 187))
 
             pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2))
             pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2), 1)
 
-            for index, cell in enumerate(cells):
+            for index, cell in enumerate(inventory_cells):
+                pygame.draw.rect(window, (77, 70, 70)
+                if cell.collidepoint(pygame.mouse.get_pos()) else (107, 105, 105), cell)
                 pygame.draw.rect(window, (215, 215, 215), cell, 1)
                 if self.hero.inventory[index]:
                     icon = pygame.transform.scale(links[self.hero.inventory[index][0]].copy(), (20, 20))
@@ -782,9 +797,33 @@ class Game:
                     window.blit(font.render(str(self.hero.inventory[index][1]), False, (212, 212, 212)),
                                 (cell.x + 4.5, cell.y + 4.5))
 
-            if drag_item is not None:
-                window.blit(links[self.hero.inventory[drag_item][0]], (pygame.mouse.get_pos()[0] - 10,
-                                                                       pygame.mouse.get_pos()[1] - 10))
+            # Ящик
+            if chest:
+                size = font_pause.size('Chest')
+                pygame.draw.rect(window, (107, 105, 105),
+                                 (SIZE[0] / 2 - size[0] / 2 - 3, 415, size[0] + 6, size[1] + 14))
+                pygame.draw.rect(window, (215, 215, 215),
+                                 (SIZE[0] / 2 - size[0] / 2 - 3, 415, size[0] + 6, size[1] + 14), 1)
+                window.blit(font_pause.render('Chest', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 422))
+
+                pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 + 35, 35 * 10, 35 * 2))
+                pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 + 35, 35 * 10, 35 * 2), 1)
+
+                for index, cell in enumerate(chest_cells):
+                    pygame.draw.rect(window, (77, 70, 70)
+                    if cell.collidepoint(pygame.mouse.get_pos()) else (107, 105, 105), cell)
+                    pygame.draw.rect(window, (215, 215, 215), cell, 1)
+                    if chest[index]:
+                        icon = pygame.transform.scale(links[chest[index][0]].copy(), (20, 20))
+                        window.blit(icon, (cell.x + 4.5, cell.y + 4.5))
+                        window.blit(font.render(str(chest[index][1]), False, (212, 212, 212)),
+                                    (cell.x + 4.5, cell.y + 4.5))
+
+            # Курсор
+            if drag_item is not None and (self.hero.inventory[drag_item]
+                if drag_item < 20 else chest[drag_item - 20]):
+                window.blit(links[(self.hero.inventory[drag_item] if drag_item < 20 else chest[drag_item - 20])[0]],
+                            (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
             else:
                 pygame.draw.line(window, (0, 0, 0), (pygame.mouse.get_pos()[0] - 5, pygame.mouse.get_pos()[1] - 5),
                                  (pygame.mouse.get_pos()[0] + 5, pygame.mouse.get_pos()[1] + 5))

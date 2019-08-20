@@ -50,8 +50,6 @@ if __name__ == 'classes.Player':
             self.inventory_menu_pos = 1
             self.menu_pos = 1
 
-            self.chest_block = None
-
             resource = pygame.image.load(r'data\textures\player.png').convert_alpha()
             self.rect = pygame.Rect(player_x, player_y, 22, 49)
 
@@ -444,10 +442,7 @@ if __name__ == 'classes.Player':
                                     go = False
 
                                 if n.name == 'chest':
-                                    if self.chest_block is None:
-                                        self.chest_block = n
-                                    else:
-                                        self.chest_block = None
+                                    game.inventory(n.content)
 
                             if (_name == 'door') and (n.rect.x == _x) and (_y <= n.rect.y <= _y + 49):
                                 go = False
@@ -509,11 +504,7 @@ if __name__ == 'classes.Player':
                     del _x, _y, _name, go
 
             if self.k_up:
-                if self.chest_block:
-                    if self.menu_pos <= len(self.chest_block.content):
-                        if self.add_item(self.inventory, [self.chest_block.content[self.menu_pos - 1][0], 1]):
-                            self.remove_item(self.chest_block.content, [self.chest_block.content[self.menu_pos - 1][0], 1])
-                elif self.furnace_available:
+                if self.furnace_available:
                     if self.menu_pos <= len(self.furnace_available):
                         if self.add_item(self.inventory, self.furnace_available[self.menu_pos - 1][0]):
                             for rem_item in self.furnace_available[self.menu_pos - 1][1]:
@@ -527,11 +518,6 @@ if __name__ == 'classes.Player':
                 self.k_up = False
 
             if self.k_down:
-                if self.chest_block:
-                    if self.inventory[self.inventory_menu_pos - 1]:
-                        if self.add_item(self.chest_block.content, [self.inventory[self.inventory_menu_pos - 1][0], 1]):
-                            self.remove_item(self.inventory, [self.inventory[self.inventory_menu_pos - 1][0], 1])
-
                 self.k_down = False
 
             if self.k_left:

@@ -19,7 +19,7 @@ if __name__ == 'classes.Block':
             self.Collision = collision
             self.cooldown = cooldown
             if content is not None:
-                self.content = content
+                self.content = content + [None] * (15 - len(content))
             else:
                 self.content = [None] * 15
     
