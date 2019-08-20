@@ -292,7 +292,13 @@ class Game:
                 self.time += 2
                 if self.time > 300:
                     if self.hero.spawn_point:
+                        for item in self.hero.inventory:
+                            self.pickup.append(PickUp(self.hero.x + randint(0, self.hero.rect.w),
+                                                      self.hero.y + randint(0, self.hero.rect.h // 2),
+                                                      item[0],
+                                                      item[1]))
                         self.hero.x, self.hero.y = self.hero.spawn_point[-1]
+                        self.hero.rect.x, self.hero.rect.y = self.hero.x, self.hero.y
                         self.hero.inventory.clear()
                         self.hero.hp = self.hero.hunger = 10
                         self.time = 0
