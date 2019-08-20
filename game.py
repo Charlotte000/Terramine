@@ -797,7 +797,7 @@ class Game:
         SIZE[1] += 56
 
         # Проверка сохранение игры
-        saves = listdir('data\saves')
+        saves = listdir(r'data\saves')
         remove_saves = []
         for save in saves:
             if save[-5:] != '.json':
@@ -906,14 +906,15 @@ class Game:
                 pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
                 self.screen.blit(font_menu1.render('Key bindings', False, (255, 255, 255)), (285, 87))
 
-                pygame.draw.rect(self.screen, (107, 105, 105), (253, 180, 250, 240))
-                pygame.draw.rect(self.screen, (215, 215, 215), (253, 180, 250, 240), 1)
-                self.screen.blit(font_menu1.render('[Q] - delete item', False, (255, 255, 255)), (260, 187))
-                self.screen.blit(font_menu1.render('[Esc] - pause', False, (255, 255, 255)), (260, 227))
-                self.screen.blit(font_menu1.render('[A, D] - walk', False, (255, 255, 255)), (260, 267))
-                self.screen.blit(font_menu1.render('[W] - jump', False, (255, 255, 255)), (260, 307))
-                self.screen.blit(font_menu1.render('[S] - move down', False, (255, 255, 255)), (260, 347))
-                self.screen.blit(font_menu1.render('[M] - map', False, (255, 255, 255)), (260, 387))
+                pygame.draw.rect(self.screen, (107, 105, 105), (238, 180, 280, 280))
+                pygame.draw.rect(self.screen, (215, 215, 215), (238, 180, 280, 280), 1)
+                self.screen.blit(font_menu1.render('[Q] - delete item', False, (255, 255, 255)), (245, 187))
+                self.screen.blit(font_menu1.render('[Esc] - pause', False, (255, 255, 255)), (245, 227))
+                self.screen.blit(font_menu1.render('[A, D] - walk', False, (255, 255, 255)), (245, 267))
+                self.screen.blit(font_menu1.render('[W] - jump', False, (255, 255, 255)), (245, 307))
+                self.screen.blit(font_menu1.render('[S] - move down', False, (255, 255, 255)), (245, 347))
+                self.screen.blit(font_menu1.render('[M] - map', False, (255, 255, 255)), (245, 387))
+                self.screen.blit(font_menu1.render('[TAB] - inventory', False, (255, 255, 255)), (245, 427))
 
                 if pygame.Rect((500, 616, 200, 40)).collidepoint(mouse):
                     if is_pressed:
