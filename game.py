@@ -720,6 +720,7 @@ class Game:
                     y += 35
 
         drag_item = None
+        drag_num = None
 
         while pause:
             # Key event
@@ -732,48 +733,79 @@ class Game:
                             self.hero.right_click = self.hero.left_click = False
                         pause = False
 
+            # Delete zero-items
+            for index, it in enumerate(self.hero.inventory):
+                if it and it[1] <= 0:
+                    self.hero.inventory[index] = None
+            if chest:
+                for index, it in enumerate(chest):
+                    if it and it[1] <= 0:
+                        chest[index] = None
+
             # Mouse drag
             if pygame.mouse.get_pressed()[0]:
-                if drag_item is None:
-                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells + chest_cells)
-                    if num != -1:
-                        drag_item = num
+                if not drag_item:
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells)
+                    if num != -1 and self.hero.inventory[num]:
+                        drag_item = self.hero.inventory[num][:]
+                        drag_num = [num, True]
+                        self.hero.remove_item(self.hero.inventory, self.hero.inventory[num])
+                    elif chest:
+                        num2 = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(chest_cells)
+                        if num2 != -1 and chest[num2]:
+                            drag_item = chest[num2][:]
+                            drag_num = [num2, False]
+                            self.hero.remove_item(chest, chest[num2])
             else:
-                if drag_item is not None:
-                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells + chest_cells)
+                if drag_item:
+                    num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells)
                     if num != -1:
-                        if num < 20:
-                            _in = self.hero.inventory[num]
-                        else:
-                            _in = chest[num - 20]
-
-                        if drag_item < 20:
-                            _out = self.hero.inventory[drag_item]
-                        else:
-                            _out = chest[drag_item - 20]
-
-                        if _out:
-                            if _in:
-                                if _in[0] == _out[0] and num != drag_item:
-                                    _in[1] += _out[1]
-
-                                    if drag_item < 20:
-                                        self.hero.inventory[drag_item] = None
-                                    else:
-                                        chest[drag_item - 20] = None
-                                else:
-                                    _in[0], _in[1], _out[0], _out[1] = _out[0], _out[1], _in[0], _in[1]
+                        # Inventory
+                        if self.hero.inventory[num]:
+                            if drag_item[0] == self.hero.inventory[num][0]:
+                                # Add
+                                self.hero.add_item(self.hero.inventory, drag_item)
                             else:
-                                if num < 20:
-                                    self.hero.inventory[num] = _out[:]
+                                # Swap
+                                if drag_num[1]:
+                                    self.hero.inventory[drag_num[0]] = self.hero.inventory[num][:]
                                 else:
-                                    chest[num - 20] = _out[:]
-                                if drag_item < 20:
-                                    self.hero.inventory[drag_item] = None
-                                else:
-                                    chest[drag_item - 20] = None
+                                    chest[drag_num[0]] = self.hero.inventory[num][:]
 
-                drag_item = None
+                                self.hero.inventory[num] = drag_item[:]
+                        else:
+                            # Place
+                            self.hero.inventory[num] = drag_item[:]
+                    else:
+                        # Set back
+                        if drag_num[1]:
+                            self.hero.inventory[drag_num[0]] = drag_item[:]
+
+                        # Chest
+                        if chest:
+                            num2 = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(chest_cells)
+                            if num2 != -1:
+                                if chest[num2]:
+                                    if drag_item[0] == chest[num2][0]:
+                                        # Add
+                                        self.hero.add_item(chest, drag_item)
+                                    else:
+                                        # Swap
+                                        if drag_num[1]:
+                                            self.hero.inventory[drag_num[0]] = chest[num2][:]
+                                        else:
+                                            chest[drag_num[0]] = chest[num2][:]
+
+                                        chest[num2] = drag_item[:]
+                                else:
+                                    # Place
+                                    chest[num2] = drag_item[:]
+                            else:
+                                # Set back
+                                if not drag_num[1]:
+                                    chest[drag_num[0]] = drag_item[:]
+                    drag_item = None
+                    drag_num = None
 
             window.blit(img, (0, 0))
 
@@ -820,10 +852,8 @@ class Game:
                                     (cell.x + 4.5, cell.y + 4.5))
 
             # Курсор
-            if drag_item is not None and (self.hero.inventory[drag_item]
-                if drag_item < 20 else chest[drag_item - 20]):
-                window.blit(links[(self.hero.inventory[drag_item] if drag_item < 20 else chest[drag_item - 20])[0]],
-                            (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
+            if drag_item:
+                window.blit(links[drag_item[0]], (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
             else:
                 pygame.draw.line(window, (0, 0, 0), (pygame.mouse.get_pos()[0] - 5, pygame.mouse.get_pos()[1] - 5),
                                  (pygame.mouse.get_pos()[0] + 5, pygame.mouse.get_pos()[1] + 5))
