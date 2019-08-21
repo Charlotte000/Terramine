@@ -754,7 +754,7 @@ class Game:
 
                         if _out:
                             if _in:
-                                if _in[0] == _out[0] and _in != _out:
+                                if _in[0] == _out[0] and num != drag_item:
                                     _in[1] += _out[1]
 
                                     if drag_item < 20:
