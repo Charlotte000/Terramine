@@ -1,5 +1,5 @@
 from random import randint
-from math import sqrt
+from math import sqrt, ceil
 from datetime import datetime
 from os import listdir, remove
 import pygame
@@ -733,29 +733,24 @@ class Game:
                             self.hero.right_click = self.hero.left_click = False
                         pause = False
 
-            # Delete zero-items
-            for index, it in enumerate(self.hero.inventory):
-                if it and it[1] <= 0:
-                    self.hero.inventory[index] = None
-            if chest:
-                for index, it in enumerate(chest):
-                    if it and it[1] <= 0:
-                        chest[index] = None
-
             # Mouse drag
-            if pygame.mouse.get_pressed()[0]:
+            if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[1]:
                 if not drag_item:
                     num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells)
                     if num != -1 and self.hero.inventory[num]:
                         drag_item = self.hero.inventory[num][:]
+                        if pygame.mouse.get_pressed()[1]:
+                            drag_item[1] = ceil(drag_item[1] / 2)
                         drag_num = [num, True]
-                        self.hero.remove_item(self.hero.inventory, self.hero.inventory[num])
+                        self.hero.inventory[num][1] -= drag_item[1]
                     elif chest:
                         num2 = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(chest_cells)
                         if num2 != -1 and chest[num2]:
                             drag_item = chest[num2][:]
+                            if pygame.mouse.get_pressed()[1]:
+                                drag_item[1] = ceil(drag_item[1] / 2)
                             drag_num = [num2, False]
-                            self.hero.remove_item(chest, chest[num2])
+                            chest[num2][1] -= drag_item[1]
             else:
                 if drag_item:
                     num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells)
@@ -764,7 +759,7 @@ class Game:
                         if self.hero.inventory[num]:
                             if drag_item[0] == self.hero.inventory[num][0]:
                                 # Add
-                                self.hero.add_item(self.hero.inventory, drag_item)
+                                self.hero.inventory[num][1] += drag_item[1]
                             else:
                                 # Swap
                                 if drag_num[1]:
@@ -779,7 +774,10 @@ class Game:
                     else:
                         # Set back
                         if drag_num[1]:
-                            self.hero.inventory[drag_num[0]] = drag_item[:]
+                            if self.hero.inventory[drag_num[0]]:
+                                self.hero.inventory[drag_num[0]][1] += drag_item[1]
+                            else:
+                                self.hero.inventory[drag_num[0]] = drag_item[:]
 
                         # Chest
                         if chest:
@@ -788,7 +786,7 @@ class Game:
                                 if chest[num2]:
                                     if drag_item[0] == chest[num2][0]:
                                         # Add
-                                        self.hero.add_item(chest, drag_item)
+                                        chest[num2][1] += drag_item[1]
                                     else:
                                         # Swap
                                         if drag_num[1]:
@@ -803,9 +801,21 @@ class Game:
                             else:
                                 # Set back
                                 if not drag_num[1]:
-                                    chest[drag_num[0]] = drag_item[:]
+                                    if chest[drag_num[0]]:
+                                        chest[drag_num[0]][1] += drag_item[1]
+                                    else:
+                                        chest[drag_num[0]] = drag_item[:]
                     drag_item = None
                     drag_num = None
+
+            # Delete zero-items
+            for index, it in enumerate(self.hero.inventory):
+                if it and it[1] <= 0:
+                    self.hero.inventory[index] = None
+            if chest:
+                for index, it in enumerate(chest):
+                    if it and it[1] <= 0:
+                        chest[index] = None
 
             window.blit(img, (0, 0))
 
@@ -854,6 +864,8 @@ class Game:
             # Курсор
             if drag_item:
                 window.blit(links[drag_item[0]], (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
+                window.blit(font.render(str(drag_item[1]), False, (212, 212, 212)),
+                            (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
             else:
                 pygame.draw.line(window, (0, 0, 0), (pygame.mouse.get_pos()[0] - 5, pygame.mouse.get_pos()[1] - 5),
                                  (pygame.mouse.get_pos()[0] + 5, pygame.mouse.get_pos()[1] + 5))
