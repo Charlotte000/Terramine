@@ -734,13 +734,15 @@ class Game:
                         pause = False
 
             # Mouse drag
-            if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[1]:
+            if any(pygame.mouse.get_pressed()):
                 if not drag_item:
                     num = pygame.Rect(*pygame.mouse.get_pos(), 1, 1).collidelist(inventory_cells)
                     if num != -1 and self.hero.inventory[num]:
                         drag_item = self.hero.inventory[num][:]
                         if pygame.mouse.get_pressed()[1]:
                             drag_item[1] = ceil(drag_item[1] / 2)
+                        elif pygame.mouse.get_pressed()[2]:
+                            drag_item[1] = 1
                         drag_num = [num, True]
                         self.hero.inventory[num][1] -= drag_item[1]
                     elif chest:
@@ -749,6 +751,8 @@ class Game:
                             drag_item = chest[num2][:]
                             if pygame.mouse.get_pressed()[1]:
                                 drag_item[1] = ceil(drag_item[1] / 2)
+                            elif pygame.mouse.get_pressed()[2]:
+                                drag_item[1] = 1
                             drag_num = [num2, False]
                             chest[num2][1] -= drag_item[1]
             else:
