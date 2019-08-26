@@ -795,7 +795,7 @@ class Game:
                             self.hero.inventory[num] = drag_item[:]
                     else:
                         # Set back
-                        if drag_num[1]:
+                        if drag_num[1] and not chest:
                             if self.hero.inventory[drag_num[0]]:
                                 self.hero.inventory[drag_num[0]][1] += drag_item[1]
                             else:
