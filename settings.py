@@ -175,6 +175,18 @@ minimap = [
 ]
 
 
+# Tools damage
 axe_damage = ['log', 'wood_planks', 'crafting_table', 'door', 'trapdoor', 'ladder', 'leaves', 'fence']
 pickaxe_damage = ['stone', 'cobblestone', 'iron_ore', 'gold_ore', 'diamond_ore', 'furnace', 'coal_ore']
 shovel_damage = ['dirt', 'grass', 'sand']
+
+# Key bindings
+keyBindings = [
+    '[Q] - delete item',
+    '[Esc] - pause',
+    '[A, D] - walk',
+    '[W] - jump',
+    '[S] - move down',
+    '[M] - map',
+    '[TAB] - inventory'
+]

@@ -11,7 +11,7 @@ if __name__ == 'utils':
     from classes.Sheep import Sheep
     from classes.Bird import Bird
 
-    from settings import F_SIZE, trees
+    from settings import F_SIZE, trees, SIZE
 
 
     def angle_calc(x1, y1, x2, y2):
@@ -316,7 +316,7 @@ if __name__ == 'utils':
             w = progress / 50355 * 200
             if w > 200:
                 w = 200
-            pygame.draw.rect(screen, (107, 105, 105), (278, 255, w, 10))
-            pygame.draw.rect(screen, (215, 215, 215), (278, 255, 200, 10), 1)
+            pygame.draw.rect(screen, (107, 105, 105), (SIZE[0] / 2 - 100, 255, w, 10))
+            pygame.draw.rect(screen, (215, 215, 215), (SIZE[0] / 2 - 100, 255, 200, 10), 1)
             pygame.event.get()
             pygame.display.flip()

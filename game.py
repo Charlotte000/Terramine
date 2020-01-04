@@ -18,9 +18,10 @@ from classes.Sheep import Sheep
 from classes.Wall import Wall
 from classes.Worm import Worm
 from classes.Zombie import Zombie
+from classes.Button import Button
 
 from data.textures.loader import t_iron_pickaxe, links
-from settings import SIZE, F_SIZE, DEBUG, description, craft_list, crafting_table_list, minimap, furnace_list
+from settings import SIZE, F_SIZE, DEBUG, description, craft_list, crafting_table_list, minimap, furnace_list, keyBindings
 from utils import read_save, write_save, create_map
 
 pygame.font.init()
@@ -551,6 +552,14 @@ class Game:
         font_pause = pygame.font.Font(r'data\font.ttf', 25)
         font_console = pygame.font.SysFont('serif', 20)
 
+        buttons = [
+            Button([SIZE[0] / 2, 100], 'Pause', 25, False),
+            Button([SIZE[0] / 2, 230], 'Save game', 25),
+            Button([SIZE[0] / 2, 360], 'Exit', 25)
+        ]
+        for b in buttons:
+            b.size[0] = 200
+
         write_save_name = self.save_name[:-5]
         write_text = ''
 
@@ -627,36 +636,21 @@ class Game:
 
             window.blit(img, (0, 0))
 
-            pygame.draw.rect(window, (107, 105, 105), (278, 80, 200, 40))
-            pygame.draw.rect(window, (215, 215, 215), (278, 80, 200, 40), 1)
-            window.blit(font_pause.render('Pause', False, (255, 255, 255)), (335, 87))
-
-            if pygame.Rect(278, 210, 200, 40).collidepoint(mouse) and not enter_name and not console:
-                if is_pressed:
+            for button in buttons:
+                button.render(mouse)
+                button.draw(window)
+            if is_pressed:
+                if buttons[1].hover and not enter_name and not console:
                     enter_name = True
-                col = (57, 50, 50)
-            else:
-                col = (107, 105, 105)
-            pygame.draw.rect(window, col, (278, 210, 200, 40))
-            pygame.draw.rect(window, (215, 215, 215), (278, 210, 200, 40), 1)
-            window.blit(font_pause.render('Save game', False, (255, 255, 255)), (300, 217))
-
-            if pygame.Rect(278, 300, 200, 40).collidepoint(mouse) and not enter_name and not console:
-                if is_pressed:
+                elif buttons[2].hover and not enter_name and not console:
                     self.game = False
                     pause = False
-                col = (57, 50, 50)
-            else:
-                col = (107, 105, 105)
-            pygame.draw.rect(window, col, (278, 300, 200, 40))
-            pygame.draw.rect(window, (215, 215, 215), (278, 300, 200, 40), 1)
-            window.blit(font_pause.render('Exit', False, (255, 255, 255)), (355, 307))
 
             if enter_name:
-                pygame.draw.rect(window, (107, 105, 105), (278, 390, 200, 40))
-                pygame.draw.rect(window, (215, 215, 215), (278, 390, 200, 40), 1)
+                pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 100, 390, 200, 46))
+                pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 100, 390, 200, 46), 1)
                 window.blit(font_pause.render(write_save_name, False, (255, 255, 255)),
-                            (378 - font_pause.size(write_save_name)[0] / 2, 397))
+                            (SIZE[0] / 2 - font_pause.size(write_save_name)[0] / 2, 397))
 
             if console:
                 window.blit(cons, (0, 0))
@@ -669,7 +663,6 @@ class Game:
 
     def map(self):
         img = pygame.image.frombuffer(pygame.image.tostring(window, 'RGBA'), (SIZE[0], SIZE[1] + 56), 'RGBA')
-        font_pause = pygame.font.Font(r'data\font.ttf', 25)
 
         pause = True
 
@@ -691,6 +684,8 @@ class Game:
         sfrc = pygame.transform.scale(sfrc, (SIZE[0], round(F_SIZE[1] / F_SIZE[0] * SIZE[0])))
         pygame.draw.rect(sfrc, (215, 215, 215), (0, 0, sfrc.get_width(), sfrc.get_height()), 1)
 
+        sign = Button([SIZE[0] / 2, 80], 'Map', 25, False)
+
         while pause:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -702,9 +697,7 @@ class Game:
                         pause = False
 
             window.blit(img, (0, 0))
-            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] // 2 - 100, 80, 200, 40))
-            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] // 2 - 100, 80, 200, 40), 1)
-            window.blit(font_pause.render('Map', False, (255, 255, 255)), (SIZE[0] // 2 - 100 + 75, 87))
+            sign.draw(window)
             window.blit(sfrc, (0, SIZE[1] / 4))
 
             window.blit(t_iron_pickaxe, (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
@@ -713,7 +706,6 @@ class Game:
 
     def inventory(self, chest=None):
         img = pygame.image.frombuffer(pygame.image.tostring(window, 'RGBA'), (SIZE[0], SIZE[1] + 56), 'RGBA')
-        font_pause = pygame.font.Font(r'data\font.ttf', 25)
 
         pause = True
 
@@ -739,6 +731,9 @@ class Game:
 
         drag_item = None
         drag_num = None
+
+        signI = Button([SIZE[0] / 2, 180], 'Inventory', 25, False)
+        signC = Button([SIZE[0] / 2, 180], 'Chest', 25, False)
 
         while pause:
             # Key event
@@ -842,12 +837,8 @@ class Game:
             window.blit(img, (0, 0))
 
             # Инфентарь
-            size = font_pause.size('Inventory')
-            pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - size[0] / 2 - 3, 180, size[0] + 6, size[1] + 14))
-            pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - size[0] / 2 - 3, 180, size[0] + 6, size[1] + 14),
-                             1)
-            window.blit(font_pause.render('Inventory', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 187))
-
+            if not chest:
+                signI.draw(window)
             pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2))
             pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 - 35 * 2, 35 * 10, 35 * 2), 1)
 
@@ -863,12 +854,7 @@ class Game:
 
             # Ящик
             if chest:
-                size = font_pause.size('Chest')
-                pygame.draw.rect(window, (107, 105, 105),
-                                 (SIZE[0] / 2 - size[0] / 2 - 3, 415, size[0] + 6, size[1] + 14))
-                pygame.draw.rect(window, (215, 215, 215),
-                                 (SIZE[0] / 2 - size[0] / 2 - 3, 415, size[0] + 6, size[1] + 14), 1)
-                window.blit(font_pause.render('Chest', False, (255, 255, 255)), (SIZE[0] / 2 - size[0] / 2, 422))
+                signC.draw(window)
 
                 pygame.draw.rect(window, (107, 105, 105), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 + 35, 35 * 10, 35 * 2))
                 pygame.draw.rect(window, (215, 215, 215), (SIZE[0] / 2 - 35 * 5, SIZE[1] / 2 + 35, 35 * 10, 35 * 2), 1)
@@ -918,15 +904,50 @@ class Game:
         font_menu0 = pygame.font.Font(r'data\font.ttf', 40)
         font_menu1 = pygame.font.Font(r'data\font.ttf', 25)
 
+        menu = True
+        play = key_bindings = load = delete = False
+
+        buttons = {
+            'mainMenu': [
+                Button([SIZE[0] / 2, 100], 'Main menu', 25, False),
+                Button([SIZE[0] / 2, 230], 'Play', 25),  
+                Button([SIZE[0] / 2, 320], 'Key bindings', 25),
+                Button([SIZE[0] / 2, 410], 'Exit', 25)
+            ],
+            'keyBindings': [
+                Button([SIZE[0] / 2, 100], 'Key bindings', 25, False),
+                Button([SIZE[0] / 2, 300], keyBindings, 25, False),
+                Button([SIZE[0] / 2, 500], 'Back', 25)
+            ],
+            'play': [
+                Button([SIZE[0] / 2, 100], 'Play', 25, False),
+                Button([SIZE[0] / 2, 230], 'New game', 25),
+                Button([SIZE[0] / 2, 320], 'Load game', 25),
+                Button([SIZE[0] / 2, 410], 'Delete game', 25),
+                Button([SIZE[0] / 2, 540], 'Back', 25)
+            ],
+            'load':
+                [Button([SIZE[0] / 2, 100], 'Load game', 25, False)] +
+                [Button([SIZE[0] / 2, 230 + 90 * count], saves[count][:-5], 25)
+                    for count in range(0, len(saves))] + 
+                [Button([SIZE[0] / 2, 270 + 90 * len(saves)], 'Back', 25)],
+            'delete': 
+                [Button([SIZE[0] / 2, 100], 'Delete game', 25, False)] +
+                [Button([SIZE[0] / 2, 230 + 90 * count], saves[count][:-5], 25)
+                    for count in range(0, len(saves))] + 
+                [Button([SIZE[0] / 2, 270 + 90 * len(saves)], 'Back', 25)],
+        }
+
+        for i in buttons['mainMenu'] + buttons['play'] + buttons['load'] + buttons['delete']:
+            i.size[0] = 200
+
         cam_dx = 1
 
         map_img = pygame.image.load(r'data\textures\menu map.png').convert_alpha()
 
         for x in range(map_img.get_width()):
             for y in range(map_img.get_height()):
-
                 clr = map_img.get_at((x, y))
-
                 for itm in minimap:
                     if itm[0] == clr:
                         if itm[1][-4:] == 'wall':
@@ -935,9 +956,6 @@ class Game:
                             self.block.append(Block(x * 25, y * 25, itm[1], content=['eye_call', 1], explored=True))
                         else:
                             self.block.append(Block(x * 25, y * 25, itm[1], explored=True))
-
-        menu = True
-        play = key_bindings = load = delete = False
 
         mouse_cooldown = 0
         is_pressed = False
@@ -968,170 +986,72 @@ class Game:
             for unit in self.wall:
                 unit.render(self)
 
-            if (key_bindings is False) and (play is False) and (load is False) and (delete is False):
-                self.screen.blit(font_menu0.render('Terramine', False, (255, 255, 255)), (255, 10))
+            if not key_bindings and not play and not load and not delete:
+                self.screen.blit(font_menu0.render('Terramine', False, (255, 255, 255)), (225, 10))
 
-                pygame.draw.rect(self.screen, (107, 105, 105), (278, 80, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Main menu', False, (255, 255, 255)), (310, 87))
+                for button in buttons['mainMenu']:
+                    button.render(mouse)
+                    button.draw(self.screen)
 
-                if pygame.Rect((278, 210, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                if is_pressed:
+                    if buttons['mainMenu'][1].hover:
                         play = True
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 210, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 210, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Play', False, (255, 255, 255)), (345, 217))
-
-                if pygame.Rect((278, 300, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                    elif buttons['mainMenu'][2].hover:
                         key_bindings = True
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 300, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 300, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Key bindings', False, (255, 255, 255)), (285, 307))
-
-                if pygame.Rect((278, 390, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                    elif buttons['mainMenu'][3].hover:
                         exit()
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 390, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 390, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Exit', False, (255, 255, 255)), (355, 398))
             elif key_bindings:
-                pygame.draw.rect(self.screen, (107, 105, 105), (278, 80, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Key bindings', False, (255, 255, 255)), (285, 87))
+                for button in buttons['keyBindings']:
+                    button.render(mouse)
+                    button.draw(self.screen)
 
-                pygame.draw.rect(self.screen, (107, 105, 105), (238, 180, 280, 280))
-                pygame.draw.rect(self.screen, (215, 215, 215), (238, 180, 280, 280), 1)
-                self.screen.blit(font_menu1.render('[Q] - delete item', False, (255, 255, 255)), (245, 187))
-                self.screen.blit(font_menu1.render('[Esc] - pause', False, (255, 255, 255)), (245, 227))
-                self.screen.blit(font_menu1.render('[A, D] - walk', False, (255, 255, 255)), (245, 267))
-                self.screen.blit(font_menu1.render('[W] - jump', False, (255, 255, 255)), (245, 307))
-                self.screen.blit(font_menu1.render('[S] - move down', False, (255, 255, 255)), (245, 347))
-                self.screen.blit(font_menu1.render('[M] - map', False, (255, 255, 255)), (245, 387))
-                self.screen.blit(font_menu1.render('[TAB] - inventory', False, (255, 255, 255)), (245, 427))
-
-                if pygame.Rect((500, 616, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                if is_pressed:
+                    if buttons['keyBindings'][2].hover:
                         key_bindings = False
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (500, 616, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (500, 616, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Back', False, (255, 255, 255)), (565, 623))
             elif play:
-                pygame.draw.rect(self.screen, (107, 105, 105), (278, 80, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Play', False, (255, 255, 255)), (345, 87))
+                for button in buttons['play']:
+                    button.render(mouse)
+                    button.draw(self.screen)
 
-                if pygame.Rect((278, 210, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                if is_pressed:
+                    if buttons['play'][1].hover:
                         save_name = ''
                         menu = False
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 210, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 210, 200, 40), 1)
-                self.screen.blit(font_menu1.render('New game', False, (255, 255, 255)), (310, 217))
-
-                if pygame.Rect((278, 300, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                    elif buttons['play'][2].hover:
                         load = True
                         play = False
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 300, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 300, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Load game', False, (255, 255, 255)), (300, 307))
-
-                if pygame.Rect((278, 390, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                    elif buttons['play'][3].hover:
                         delete = True
                         play = False
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (278, 390, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 390, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Delete game', False, (255, 255, 255)), (290, 397))
-
-                if pygame.Rect((500, 616, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                    elif buttons['play'][4].hover:
                         play = False
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (500, 616, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (500, 616, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Back', False, (255, 255, 255)), (565, 623))
             elif load:
-                pygame.draw.rect(self.screen, (107, 105, 105), (278, 80, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Load game', False, (255, 255, 255)), (300, 87))
-
-                if pygame.Rect((500, 616, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                for button in buttons['load']:
+                    button.render(mouse)
+                    button.draw(self.screen)
+                if is_pressed:
+                    if buttons['load'][-1].hover:
                         load = False
                         play = True
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (500, 616, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (500, 616, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Back', False, (255, 255, 255)), (565, 623))
-
-                for count in range(0, len(saves)):
-                    if pygame.Rect((278, count * 90 + 210, 200, 40)).collidepoint(mouse):
-                        if is_pressed:
-                            save_name = saves[count]
+                    for c in buttons['load'][1:-1]:
+                        if c.hover:
+                            save_name = c.text + '.json'
                             menu = False
-                        col = (57, 50, 50)
-                    else:
-                        col = (107, 105, 105)
-                    pygame.draw.rect(self.screen, col, (278, count * 90 + 210, 200, 40))
-                    pygame.draw.rect(self.screen, (215, 215, 215), (278, count * 90 + 210, 200, 40), 1)
-                    self.screen.blit(font_menu1.render(str(saves[count][:-5]), False, (255, 255, 255)),
-                                     (378 - font_menu1.size(str(saves[count])[:-5])[0] / 2, count * 90 + 217))
+                            break
             elif delete:
-                pygame.draw.rect(self.screen, (107, 105, 105), (278, 80, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (278, 80, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Delete game', False, (255, 255, 255)), (290, 87))
-
-                if pygame.Rect((500, 616, 200, 40)).collidepoint(mouse):
-                    if is_pressed:
+                for button in buttons['delete']:
+                    button.render(mouse)
+                    button.draw(self.screen)
+                if is_pressed:
+                    if buttons['delete'][-1].hover:
                         delete = False
                         play = True
-                    col = (57, 50, 50)
-                else:
-                    col = (107, 105, 105)
-                pygame.draw.rect(self.screen, col, (500, 616, 200, 40))
-                pygame.draw.rect(self.screen, (215, 215, 215), (500, 616, 200, 40), 1)
-                self.screen.blit(font_menu1.render('Back', False, (255, 255, 255)), (565, 623))
-
-                for count in range(0, len(saves)):
-                    if pygame.Rect((278, count * 90 + 210, 200, 40)).collidepoint(mouse):
-                        if is_pressed:
-                            remove('data\saves\{name}'.format(name=saves[count]))
-                            saves.remove(saves[count])
+                    for c in buttons['delete'][1:-1]:
+                        if c.hover:
+                            remove(r'data\saves\{name}'.format(name=c.text + '.json'))
+                            saves.remove(c.text + '.json')
+                            buttons['delete'].remove(c)
                             break
-                        col = (57, 50, 50)
-                    else:
-                        col = (107, 105, 105)
-                    pygame.draw.rect(self.screen, col, (278, count * 90 + 210, 200, 40))
-                    pygame.draw.rect(self.screen, (215, 215, 215), (278, count * 90 + 210, 200, 40), 1)
-                    self.screen.blit(font_menu1.render(str(saves[count][:-5]), False, (255, 255, 255)),
-                                     (378 - font_menu1.size(str(saves[count])[:-5])[0] / 2, count * 90 + 217))
 
             # Курсор
             self.screen.blit(t_iron_pickaxe, (pygame.mouse.get_pos()[0] - 10, pygame.mouse.get_pos()[1] - 10))
