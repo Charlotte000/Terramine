@@ -1,9 +1,9 @@
 if __name__ == 'utils':
     from math import degrees, atan, sqrt
     from json import dump, loads
-    from random import randint, choice, randrange, choices
+    from random import randint, choice, randrange, choices, uniform
     import pygame
-    from threading import Thread
+    from opensimplex import OpenSimplex
 
     from classes.Block import Block
     from classes.Wall import Wall
@@ -11,7 +11,7 @@ if __name__ == 'utils':
     from classes.Sheep import Sheep
     from classes.Bird import Bird
 
-    from settings import F_SIZE, trees, SIZE
+    from settings import F_SIZE, SIZE
 
 
     def angle_calc(x1, y1, x2, y2):
@@ -89,234 +89,179 @@ if __name__ == 'utils':
         time[0] = load_text['environment']['time']
         time_speed[0] *= load_text['environment']['direction']
 
+    def create_map(hero, block, wall):
+        trees = [
+            lambda x, y: [[x, y, 'log'], [x, y - 1, 'log'], [x, y - 2, 'log'], [x, y - 3, 'log'],
+                          [x - 1, y - 2, 'leaves'], [x + 1, y - 2, 'leaves'], [x - 1, y - 3, 'leaves'],
+                          [x + 1, y - 3, 'leaves'], [x, y - 4, 'leaves']],
+            lambda x, y: [[x, y, 'log'], [x, y - 1, 'log'], [x, y - 2, 'log'], [x, y - 3, 'log'], [x, y - 4, 'log'],
+                          [x - 1, y - 2, 'leaves'], [x + 1, y - 2, 'leaves'], [x - 1, y - 3, 'leaves'],
+                          [x + 1, y - 3, 'leaves'], [x, y - 5, 'leaves'], [x - 1, y - 4, 'leaves'],
+                          [x + 1, y - 4, 'leaves'], [x - 1, y - 5, 'leaves'], [x + 1, y - 5, 'leaves'],
+                          [x, y - 6, 'leaves'], [x - 2, y - 2, 'leaves'], [x + 2, y - 2, 'leaves'],
+                          [x - 2, y - 3, 'leaves'], [x + 2, y - 3, 'leaves']],
+            lambda x, y: [[x, y, 'log'], [x, y - 1, 'log'], [x, y - 2, 'log'], [x, y - 3, 'log'], [x, y - 4, 'log'],
+                          [x, y - 5, 'log'], [x - 1, y - 4, 'leaves'], [x + 1, y - 4, 'leaves'],
+                          [x - 1, y - 5, 'leaves'], [x + 1, y - 5, 'leaves'], [x, y - 6, 'leaves']]
+        ]
+        win = pygame.Surface((int(F_SIZE[0] / 25), int(F_SIZE[1] / 25)))
+        win.fill((100, 100, 255))
+        w, h = win.get_size()
+        gen = OpenSimplex()
 
-    def create_map(hero, block, wall, screen):
-        def process():
-            nonlocal progress
-            # Создание террасы
-            first_level_y = F_SIZE[1] // 2
-            first_level_x = F_SIZE[0] // 2 + randint(35, 100) * 25
-            second_level_y = first_level_y + randint(4, 6) * 25
-            third_level_y = F_SIZE[1] - randint(1, 3) * 25
-
-            cave_y = [[randrange(second_level_y, third_level_y, 25), randint(1, 5)]]
-
-            for x in range(0, F_SIZE[0], 25):
-                progress += 1
-                if 1 == randint(0, 1):
-                    first_level_y += randint(-1, 1) * 25
-
-                if 1 == randint(0, 1):
-                    second_level_y += randint(-1, 1) * 25
-
-                if 1 == randint(0, 1):
-                    third_level_y += randint(-1, 1) * 25
-
-                if first_level_y < 400:
-                    first_level_y = 425
-                if first_level_y > 900:
-                    first_level_y = 875
-
-                if second_level_y < 400:
-                    second_level_y = 425
-                elif second_level_y > 1100:
-                    second_level_y = 1075
-
-                if third_level_y < F_SIZE[1] - 75:
-                    third_level_y = F_SIZE[1] - 50
-                elif third_level_y >= F_SIZE[1]:
-                    third_level_y = F_SIZE[1] - 25
-
-                cave_y.append([cave_y[-1][0] + randint(-1, 1) * 25, cave_y[-1][1] + randint(-1, 1)])
-                if cave_y[-1][1] < -1:
-                    cave_y[-1][1] = -1
-                elif cave_y[-1][1] > 5:
-                    cave_y[-1][1] = 5
-
-                if cave_y[-1][0] < second_level_y:
-                    cave_y[-1][0] = second_level_y
-                elif cave_y[-1][0] + cave_y[-1][1] * 25 > third_level_y:
-                    cave_y[-1][0] = third_level_y - cave_y[-1][1] * 25
-
-                if second_level_y < first_level_y:
-                    if 1 == randint(0, 5):
-                        second_level_y += 25 * randint(1, 2)
-
-                if x <= first_level_x:
-                    if first_level_y < second_level_y:
-                        if 1 == randint(0, 2):
-                            block.append(Block(x, first_level_y - 50, 'tall_grass', explored=True))
-                        block.append(Block(x, first_level_y - 25, 'grass', wall='dirt_wall', explored=True))
-
-                    for y in range(first_level_y, second_level_y, 25):
-                        block.append(Block(x, y, 'dirt', wall='dirt_wall'))
+        off0 = [uniform(0, 1024), uniform(0, 1024)]
+        off1 = [uniform(0, 1024), uniform(0, 1024)]
+        off2 = [uniform(0, 1024), uniform(0, 1024)]
+        off3 = [uniform(0, 1024), uniform(0, 1024)]
+        off4 = [uniform(0, 1024), uniform(0, 1024)]
+        altarX = randint(10, w - 10)
+        for x in range(w):
+            y = int(h / 10 * 7 + gen.noise2d(off0[0] + x / 20, off0[1]) * h / 10 * 2)
+            for i in range(y):
+                if i > h / 10 * 7 + gen.noise2d(off1[0] + x / 10, off1[1]) * h / 10 * 2 - h / 8:
+                    if gen.noise2d(off4[0] + x / 30, off4[1] + i / 30) > .3:
+                        # Sand
+                        win.set_at((x, h - i), (210, 204, 148))
+                    else:
+                        if i == y - 1:
+                            # Grass
+                            win.set_at((x, h - i), (0, 174, 0))
+                            
+                            # Tall grass
+                            if uniform(0, 1) > .7:
+                                win.set_at((x, h - i - 1), (150, 173, 150))
+                                
+                            # Tree
+                            if uniform(0, 1) > .9:
+                                for unit in choice(trees)(x, h - i - 1):
+                                    if unit[2] == 'log':
+                                        c = (153, 81, 9)
+                                    elif unit[2] == 'leaves':
+                                        c = (66, 255, 0)
+                                    win.set_at((unit[0], unit[1]), c)
+                        else:
+                            # Dirt
+                            win.set_at((x, h - i), (196, 112, 23))
                 else:
-                    for y in range(first_level_y, second_level_y, 25):
-                        block.append(Block(x, y, 'sand', wall='sand_wall', explored=True if y == first_level_y else False))
+                    # Stone
+                    win.set_at((x, h - i), (122, 122, 122))
+            # Add altar
+            if x  - 1 == altarX:
+                win.set_at((x - 1, h - i - 1), (255, 199, 48))
+                win.set_at((x, h - i), (167, 167, 167))
+                win.set_at((x - 1, h - i), (167, 167, 167))
+                win.set_at((x - 2, h - i), (167, 167, 167))
 
-                for y in range(second_level_y, third_level_y, 25):
-                    exp = False
-                    if (y == second_level_y) and (y <= first_level_y):
-                        exp = True
-                    block.append(Block(x, y, 'stone', wall='stone_wall', explored=exp))
+        # Making holes
+        for x in range(w):
+            for y in range(h):
+                if gen.noise2d(off1[0] + x / 10, off1[1] + y / 5) < -.3:
+                    if win.get_at((x, y)) == (196, 112, 23):
+                        # Dirt wall
+                        win.set_at((x, y), (99, 78, 64))
+                    elif win.get_at((x, y)) == (122, 122, 122):
+                        # Stone wall
+                        win.set_at((x, y), (81, 81, 81))
+                    elif win.get_at((x, y)) == (210, 204, 148):
+                        # Sand wall
+                        win.set_at((x, y), (158, 153, 112))
 
-                for y in range(third_level_y, F_SIZE[1], 25):
-                    block.append(Block(x, y, 'bedrock'))
 
-            # Добавление алтаря
-            _x = round(randint(25, F_SIZE[0] - 25) / 25) * 25
-            _y = F_SIZE[1]
-            for q in block:
-                progress += 1
-                if q.Collision and (q.rect.x == _x):
-                    if q.rect.y < _y:
-                        _y = q.rect.y
-            for q in block:
-                progress += 1
-                if (q.rect.x == _x) and (q.rect.y == _y - 25):
-                    block.remove(q)
-                elif (q.rect.x == _x - 25) and (q.rect.y == _y - 25):
-                    block.remove(q)
-                elif (q.rect.x == _x + 25) and (q.rect.y == _y - 25):
-                    block.remove(q)
-                elif (q.rect.x == _x) and (q.rect.y == _y - 50):
-                    block.remove(q)
+        # Add chest
+        x0, y0 = randint(5, w - 5), int(h / 10 * 4 + randint(h / 10, h / 10 * 3))
+        for x, y in [[x0 - 1, y0], [x0, y0], [x0 + 1, y0], [x0 - 1, y0 - 1], [x0, y0 - 1], [x0 + 1, y0 - 1], [x0, y0 - 2], [x0 + 1, y0 - 2]]:
+            if win.get_at((x, y)) == (196, 112, 23):
+                # Dirt wall
+                win.set_at((x, y), (99, 78, 64))
+            elif win.get_at((x, y)) == (122, 122, 122):
+                # Stone wall
+                win.set_at((x, y), (81, 81, 81))
+            elif win.get_at((x, y)) == (210, 204, 148):
+                # Sand wall
+                win.set_at((x, y), (158, 153, 112))
 
-            block.append(Block(_x, _y - 25, 'cobblestone', explored=True))
-            block.append(Block(_x - 25, _y - 25, 'cobblestone', explored=True))
-            block.append(Block(_x + 25, _y - 25, 'cobblestone', explored=True))
-            block.append(Block(_x, _y - 50, 'altar', collision=False, explored=True))
+        for x, y in [[x0 - 1, y0], [x0, y0], [x0, y0], [x0 + 1, y0]]:
+            # Cobblestone
+            win.set_at((x, y), (167, 167, 167))
+        # Chest
+        win.set_at((x0, y0 - 1), (255, 135, 15))
 
-            _x = round(randint(25, F_SIZE[0] - 25) / 25) * 25
-            _y = round(randint(F_SIZE[1] - 400, F_SIZE[1] - 125) / 25) * 25
+        # Add ore
+        off0 = [uniform(0, 1024), uniform(0, 1024)]
+        off1 = [uniform(0, 1024), uniform(0, 1024)]
+        off2 = [uniform(0, 1024), uniform(0, 1024)]
+        off3 = [uniform(0, 1024), uniform(0, 1024)]
+        for x in range(w):
+            for y in range(h):
+                if win.get_at((x, y)) == (122, 122, 122):
+                    if gen.noise2d(off0[0] + x / 5, off0[1] + y / 5) > .5:
+                        # Coal
+                        win.set_at((x, y), (68, 68, 68))
+                    if gen.noise2d(off1[0] + x / 5, off1[1] + y / 5) > .7:
+                        # Iron
+                        win.set_at((x, y), (192, 158, 133))
+                    if gen.noise2d(off2[0] + x / 5, off2[1] + y / 5) > .7 and y > h / 20 * 15:
+                        # Gold
+                        win.set_at((x, y), (255, 255, 0))
+                    if gen.noise2d(off3[0] + x / 5, off3[1] + y / 5) > .6 and y > h / 20 * 17:
+                        # Diamond
+                        win.set_at((x, y), (0, 182, 255))
 
-            dead_block = []
+        # Add bedrock
+        for x in range(w):
+            for y in range(0, randint(2, 4)):
+                win.set_at((x, h - y), (0, 0, 0))
 
-            # Добавление пещер и ящика
-            for q in block:
-                progress += 1
-                if (q.rect.x == _x) and (q.rect.y == _y):
-                    dead_block.append(q)
-                elif (q.rect.x == _x) and (q.rect.y == _y + 25):
-                    dead_block.append(q)
-                elif (q.rect.x == _x - 25) and (q.rect.y == _y + 25):
-                    dead_block.append(q)
-                elif (q.rect.x == _x + 25) and (q.rect.y == _y + 25):
-                    dead_block.append(q)
-                elif (q.rect.x == _x - 25) and (q.rect.y == _y):
-                    dead_block.append(q)
-                elif (q.rect.x == _x + 25) and (q.rect.y == _y):
-                    dead_block.append(q)
-                elif (q.rect.x == _x) and (q.rect.y == _y - 25):
-                    dead_block.append(q)
-                elif (q.rect.x == _x + 25) and (q.rect.y == _y - 25):
-                    dead_block.append(q)
-            block.append(Block(_x, _y, 'chest', collision=False, content=[['eye_call', 1]]))
-            block.append(Block(_x, _y + 25, 'cobblestone', wall='stone_wall'))
-            block.append(Block(_x - 25, _y + 25, 'cobblestone', wall='stone_wall'))
-            block.append(Block(_x + 25, _y + 25, 'cobblestone', wall='stone_wall'))
-            wall.append(Wall(_x, _y - 25, 'stone_wall'))
-            wall.append(Wall(_x + 25, _y - 25, 'stone_wall'))
-            wall.append(Wall(_x + 25, _y, 'stone_wall'))
-            wall.append(Wall(_x - 25, _y, 'stone_wall'))
-            wall.append(Wall(_x, _y, 'stone_wall'))
 
-            for x, cave in enumerate(cave_y):
-                progress += 1
-                for y in range(cave[0], cave[0] + 25 * cave[1], 25):
-                    for q in block:
-                        if (q.rect.x == x * 25) and (q.rect.y == y) and (q.name != 'chest'):
-                            dead_block.append(q)
-                    wall.append(Wall(x * 25, y, 'stone_wall'))
-
-            #  Удаление лишнего
-            for q in set(dead_block):
-                progress += 1
-                block.remove(q)
-            dead_block.clear()
-
-            # Добваление ущелья
-            center_x = first_level_x
-            w_left, w_right = randint(10, 20), randint(10, 20)
-            for y in range(0, F_SIZE[1], 25):
-                progress += 1
-                for x in range(center_x - w_left * 25, center_x + w_right * 25, 25):
-                    for n in block:
-                        if n.rect.x == x and n.rect.y == y and n.name != 'altar' and n.name != 'bedrock':
-                            wall.append(Wall(n.rect.x, n.rect.y, 'stone_wall', explored=True))
-                            dead_block.append(n)
-                    for w in wall:
-                        if w.rect.x == x and w.rect.y == y and not w.explored:
-                            w.explored = True
-
-                for n in block:
-                    if n.rect.y == y:
-                        if n.rect.x == center_x - (w_left + 1) * 25:
-                            n.explored = True
-                        if n.rect.x == center_x + w_right * 25:
-                            n.explored = True
-                w_left += randint(-1, 1)
-                w_right -= randint(-1, 1)
-
-            #  Удаление лишнего
-            for q in set(dead_block):
-                progress += 1
-                block.remove(q)
-            dead_block.clear()
-
-            # Добавление руд
-            for b in choices([i for i in block if i.name == 'stone'], k=randint(50, 200)):
-                progress += 1
-                dead_block.append(b)
-                block.append(Block(b.rect.x, b.rect.y, 'iron_ore', wall='stone_wall'))
-
-            for b in choices([i for i in block if i.name == 'stone'], k=randint(150, 250)):
-                dead_block.append(b)
-                block.append(Block(b.rect.x, b.rect.y, 'coal_ore', wall='stone_wall'))
-
-            for b in choices([i for i in block if i.name == 'stone' and i.rect.y > 1100], k=randint(50, 100)):
-                progress += 1
-                dead_block.append(b)
-                block.append(Block(b.rect.x, b.rect.y, 'gold_ore', wall='stone_wall'))
-
-            for b in choices([i for i in block if i.name == 'stone' and i.rect.y > 1300], k=randint(30, 50)):
-                progress += 1
-                dead_block.append(b)
-                block.append(Block(b.rect.x, b.rect.y, 'diamond_ore', wall='stone_wall'))
-
-            # Добавление деревьев
-            for x in [randrange(25, F_SIZE[0] - 25, 25) for _ in range(randint(50, 100))]:
-                progress += 1
-                y = min([n.rect.y for n in [i for i in block if i.rect.x == x]])
-                for n in block:
-                    if n.rect.x == x and n.rect.y == y and (n.name == 'grass' or n.name == 'dirt'):
-                        for unit in choice(trees)(x, y - 25):
-                            block.append(Block(unit[0], unit[1], unit[2], collision=False, explored=True))
-                        break
-
-            # Удаление лишнего
-            for q in set(dead_block):
-                progress += 1
-                block.remove(q)
-
-            # Установка координаты персонажа
-            _y = F_SIZE[1]
-            for unit in block:
-                progress += 1
-                if unit.Collision and (unit.rect.x == round(hero.x / 25) * 25):
-                    if unit.rect.y < _y:
-                        _y = unit.rect.y
-            hero.y = _y - 50
-
-        progress = 0
-        t = Thread(target=process)
-        t.start()
-
-        while t.isAlive():
-            w = progress / 50355 * 200
-            if w > 200:
-                w = 200
-            pygame.draw.rect(screen, (107, 105, 105), (SIZE[0] / 2 - 100, 255, w, 10))
-            pygame.draw.rect(screen, (215, 215, 215), (SIZE[0] / 2 - 100, 255, 200, 10), 1)
-            pygame.event.get()
-            pygame.display.flip()
+        # Add items to the world
+        for x in range(w):
+            isTop = True
+            for y in range(h):
+                color = win.get_at((x, y))
+                if x == hero.x / 25 and isTop:
+                    hero.y = y * 25 - 50
+                if color == (210, 204, 148):
+                    block.append(Block(x * 25, y * 25, 'sand', True, 'sand_wall', explored=isTop))
+                    isTop = False
+                elif color == (196, 112, 23):
+                    block.append(Block(x * 25, y * 25, 'dirt', True, 'dirt_wall', explored=isTop))
+                    isTop = False
+                elif color == (122, 122, 122):
+                    block.append(Block(x * 25, y * 25, 'stone', True, 'stone_wall', explored=isTop))
+                    isTop = False
+                elif color == (99, 78, 64):
+                    wall.append(Wall(x * 25, y * 25, 'dirt_wall', explored=isTop))
+                elif color == (81, 81, 81):
+                    wall.append(Wall(x * 25, y * 25, 'stone_wall', explored=isTop))
+                elif color == (158, 153, 112):
+                    wall.append(Wall(x * 25, y * 25, 'sand_wall', explored=isTop))
+                elif color == (68, 68, 68):
+                    block.append(Block(x * 25, y * 25, 'coal_ore', True, 'stone_wall', explored=isTop))
+                    isTop = False
+                elif color == (192, 158, 133):
+                    block.append(Block(x * 25, y * 25, 'iron_ore', True, 'stone_wall', explored=isTop))
+                    isTop = False
+                elif color == (255, 255, 0):
+                    block.append(Block(x * 25, y * 25, 'gold_ore', True, 'stone_wall', explored=isTop))
+                    isTop = False
+                elif color == (0, 182, 255):
+                    block.append(Block(x * 25, y * 25, 'diamond_ore', True, 'stone_wall', explored=isTop))
+                    isTop = False
+                elif color == (0, 0, 0):
+                    block.append(Block(x * 25, y * 25, 'bedrock', True, explored=isTop))
+                    isTop = False
+                elif color == (0, 174, 0):
+                    block.append(Block(x * 25, y * 25, 'grass', True, 'dirt_wall', explored=True))
+                    isTop = False
+                elif color == (150, 173, 150):
+                    block.append(Block(x * 25, y * 25, 'tall_grass', False, explored=True))
+                elif color == (153, 81, 9):
+                    block.append(Block(x * 25, y * 25, 'log', False, explored=True))
+                elif color == (66, 255, 0):
+                    block.append(Block(x * 25, y * 25, 'leaves', False, explored=True))
+                elif color == (167, 167, 167):
+                    block.append(Block(x * 25, y * 25, 'cobblestone', True, explored=isTop))
+                elif color == (255, 135, 15):
+                    block.append(Block(x * 25, y * 25, 'chest', True, explored=isTop, content=[['eye_call', 1]]))
+                elif color == (255, 199, 48):
+                    block.append(Block(x * 25, y * 25, 'altar', True, explored=isTop))

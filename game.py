@@ -60,7 +60,7 @@ class Game:
             read_save(self.save_name, self.hero, self.block, self.wall, self.animals, self.time, self.time_speed)
         else:
             # Creating new map
-            create_map(self.hero, self.block, self.wall, window)
+            create_map(self.hero, self.block, self.wall)
         self.time = self.time[0]
         self.time_speed = self.time_speed[0]
 
@@ -902,7 +902,6 @@ class Game:
         self.wall = []
 
         font_menu0 = pygame.font.Font(r'data\font.ttf', 40)
-        font_menu1 = pygame.font.Font(r'data\font.ttf', 25)
 
         menu = True
         play = key_bindings = load = delete = False
